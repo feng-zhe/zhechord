@@ -1,6 +1,10 @@
 import subprocess as sp
+import logging
+
+logger = logging.getLogger(__name__)
 
 IMAGE_NAME = 'fengzhe_chord'
+NET_NAME = 'mynet'
 
 def build_image():
     '''
@@ -13,10 +17,31 @@ def build_image():
         N/A
 
     Raises:
-        N/A
+        CalledProcessError
     '''
     cmd = 'docker build -t {} ./'.format(IMAGE_NAME)
+    logger.info('Build image, name {}'.format(IMAGE_NAME))
     sp.run(cmd, shell=True, stdout=sp.PIPE, check=True)
+    logger.info('Done!')
+
+def create_network():
+    '''
+    create the custom network, so that each node can communicate 
+    with each other.
+    Wouldn't throw error if it has already been created.
+
+    Args:
+        N/A
+        
+    Returns:
+        N/A
+
+    Raises:
+        CalledProcessError
+    '''
+    cmd = 'docker network create {}'.format(NET_NAME)
+    sp.run(cmd, shell=True, stderr=sp.PIPE, stdout=sp.PIPE, check=False)
+    logger.info('Network created');
 
 def run_node(name):
     '''
@@ -30,10 +55,12 @@ def run_node(name):
         N/A
 
     Raises:
-        N/A
+        CalledProcessError
     '''
-    cmd = 'docker run --name {} -dit {}'.format(name, IMAGE_NAME)
+    cmd = 'docker run --name {} -dit --network={} {}'.format(name, NET_NAME, IMAGE_NAME)
+    logger.info('Starting container with hashed name {}'.format(name))
     sp.run(cmd, shell=True, stdout=sp.PIPE, check=True)
+    logger.info('Done!')
 
 def clean_up(rm_img):
     '''
@@ -46,18 +73,25 @@ def clean_up(rm_img):
         N/A
 
     Raises:
-        N/A
+        CalledProcessError
     '''
     # find the containers using my chord image
     cmd = 'docker ps -a' 
     proc = sp.run(cmd, shell=True, stdout=sp.PIPE, check=True)
     lines = proc.stdout.splitlines()
+    if len(lines) <= 1:
+        logger.info('No containers found')
+        return
     for line in lines[1:]:
         container = line.split()[0].decode('utf-8')
         image = line.split()[1].decode('utf-8')
         if image == IMAGE_NAME:     # found and stop and rm
             cmd = 'docker stop {}'.format(container)
+            logger.info('Stopping container {}'.format(container))
             sp.run(cmd, shell=True, stdout=sp.PIPE, check=True)
+            logger.info('Done!')
             cmd = 'docker rm {} -v'.format(container)
+            logger.info('Removing ...')
             sp.run(cmd, shell=True, stdout=sp.PIPE, check=True)
+            logger.info('Done')
 

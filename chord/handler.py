@@ -1,0 +1,8 @@
+from http.server import BaseHTTPRequestHandler
+
+class ChordServerHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200, 'done')
+        self.send_header('content-type', 'application/json')
+        self.end_headers()
+        self.wfile.write(b'{}')
