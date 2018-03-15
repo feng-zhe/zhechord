@@ -115,3 +115,9 @@ def clean_up(rm_img):
                 logger.info('Removing ...')
                 sp.run(cmd, shell=True, stdout=sp.PIPE, check=True)
                 logger.info('done')
+    # remove image if required
+    if rm_img:
+        cmd = 'docker rmi {}'.format(IMAGE_NAME)
+        logger.info('Removing image {}'.format(IMAGE_NAME))
+        sp.run(cmd, shell=True, stdout=sp.PIPE, check=True)
+        logger.info('Done')
