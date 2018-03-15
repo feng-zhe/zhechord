@@ -1,3 +1,4 @@
+import hashlib
 import subprocess as sp
 import logging
 
@@ -5,6 +6,25 @@ logger = logging.getLogger(__name__)
 
 IMAGE_NAME = 'fengzhe_chord'
 NET_NAME = 'mynet'
+RING_SIZE = 32
+
+def _hash(name):
+    '''
+    Hash the name according to the RING_SIZE.
+
+    Args:
+        name:   a string to be hashed
+        
+    Returns:
+        N/A
+
+    Raises:
+        N/A
+    '''
+    m = hashlib.sha1()
+    m.update(name.encode('utf-8'))
+    h = m.hexdigest()
+    return h[:RING_SIZE//8]
 
 def build_image():
     '''
@@ -22,7 +42,7 @@ def build_image():
     cmd = 'docker build -t {} ./'.format(IMAGE_NAME)
     logger.info('Build image, name {}'.format(IMAGE_NAME))
     sp.run(cmd, shell=True, stdout=sp.PIPE, check=True)
-    logger.info('Done!')
+    logger.info('Done')
 
 def create_network():
     '''
@@ -57,10 +77,11 @@ def run_node(name):
     Raises:
         CalledProcessError
     '''
-    cmd = 'docker run --name {} -dit --network={} {}'.format(name, NET_NAME, IMAGE_NAME)
-    logger.info('Starting container with hashed name {}'.format(name))
+    hname = _hash(name)
+    cmd = 'docker run --name {} -dit --network={} {}'.format(hname, NET_NAME, IMAGE_NAME)
+    logger.info('Starting container with hashed name {}'.format(hname))
     sp.run(cmd, shell=True, stdout=sp.PIPE, check=True)
-    logger.info('Done!')
+    logger.info('Done')
 
 def clean_up(rm_img):
     '''
@@ -81,17 +102,16 @@ def clean_up(rm_img):
     lines = proc.stdout.splitlines()
     if len(lines) <= 1:
         logger.info('No containers found')
-        return
-    for line in lines[1:]:
-        container = line.split()[0].decode('utf-8')
-        image = line.split()[1].decode('utf-8')
-        if image == IMAGE_NAME:     # found and stop and rm
-            cmd = 'docker stop {}'.format(container)
-            logger.info('Stopping container {}'.format(container))
-            sp.run(cmd, shell=True, stdout=sp.PIPE, check=True)
-            logger.info('Done!')
-            cmd = 'docker rm {} -v'.format(container)
-            logger.info('Removing ...')
-            sp.run(cmd, shell=True, stdout=sp.PIPE, check=True)
-            logger.info('Done')
-
+    else:
+        for line in lines[1:]:
+            container = line.split()[0].decode('utf-8')
+            image = line.split()[1].decode('utf-8')
+            if image == IMAGE_NAME:     # found and stop and rm
+                cmd = 'docker stop {}'.format(container)
+                logger.info('Stopping container {}'.format(container))
+                sp.run(cmd, shell=True, stdout=sp.PIPE, check=True)
+                logger.info('Done')
+                cmd = 'docker rm {} -v'.format(container)
+                logger.info('Removing ...')
+                sp.run(cmd, shell=True, stdout=sp.PIPE, check=True)
+                logger.info('done')
