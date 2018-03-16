@@ -7,7 +7,7 @@ RUN apt-get update && \
         git && \
     pip3 install pipenv
 ENV LC_ALL="C.UTF-8" LANG="C.UTF-8"
-COPY chord/ /root/chord/
+COPY docker/ /root/chord/
 WORKDIR /root/chord/
 RUN pipenv install
 CMD ["pipenv","run", "python", "server.py"]

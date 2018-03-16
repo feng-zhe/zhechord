@@ -4,26 +4,35 @@ Reference:
 [1] https://en.wikipedia.org/wiki/Chord_(peer-to-peer)
 [2] paper by Ion Stoica*
 '''
+import hashlib
+import mychord.finger_table as ft
 
 class Node(object):
     '''
     This node represents a node(server) in chord ring.
     '''
+    def __init__(self):
+        self.successor = None
+        self.predecessor = None
+        self.finger_table = ft.FingerTable()
+
     def calc_id(self, name):
         '''
         Calculate the id (SHA1 hash) of name.
 
         Args:
-            name:   a string to be hashed
+            name:   a string to be hashed.
 
         Returns:
-            The SHA1 hashed value.
+            The SHA1 hashed value which is 20 hex characters.
 
         Raises:
             N/A
         '''
-        # TODO
-        pass 
+        m = hashlib.sha1()
+        m.update(name.encode('utf-8'))
+        h = m.hexdigest()
+        return h
 
     def create_chord(self):
         '''

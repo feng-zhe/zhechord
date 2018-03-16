@@ -2,7 +2,7 @@
 Main file for running a node server
 '''
 from http.server import HTTPServer
-import handler
+import mychrod.handler as handler
 
 def run(server_class=HTTPServer, handler_class=handler.ChordServerHandler):
     server_address = ('', 8000)
