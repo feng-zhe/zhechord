@@ -126,5 +126,5 @@ class FingerTableEntry(object):
         Raises:
             N/A
         '''
-        self.start = format((int(node_id, 16) + 2**(i-1)) % ct.ID_MAX, 'x')
+        self.start = format((int(node_id, 16) + ct.TWO_EXP[i-1]) % ct.ID_MAX, 'x')
         self.node = None
