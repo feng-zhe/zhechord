@@ -6,17 +6,16 @@ logger = logging.getLogger(__name__)
 
 IMAGE_NAME = 'fengzhe_chord'
 NET_NAME = 'mynet'
-RING_SIZE = 32
 
 def _hash(name):
     '''
-    Hash the name according to the RING_SIZE.
+    Hash the name
 
     Args:
         name:   a string to be hashed
         
     Returns:
-        N/A
+        The hashed name.
 
     Raises:
         N/A
@@ -24,7 +23,7 @@ def _hash(name):
     m = hashlib.sha1()
     m.update(name.encode('utf-8'))
     h = m.hexdigest()
-    return h[:RING_SIZE//8]
+    return h
 
 def build_image():
     '''
