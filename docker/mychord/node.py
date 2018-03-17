@@ -173,8 +173,10 @@ class Node(object):
         Raises:
             N/A
         '''
-        # TODO
-        pass
+        if self._in_range_ie(s, self._id, self._table.get_node(i)):
+            self._table.set_node(i, s)
+            self.remote_update_finger_table(self._predecessor, s, i)
+                
 
     def get_predecessor(self):
         '''
