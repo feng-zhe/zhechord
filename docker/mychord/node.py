@@ -66,13 +66,9 @@ class Node(object):
         '''
         node = self._id
         succ = self._table.get_node(1)
-        start = format((int(node, 16) + 1) % ct.ID_MAX, 'x')
-        end = format((int(succ, 16) + 1) % ct.ID_MAX, 'x')
-        while not identity _in_range(identity, start, end):
+        while not self._in_range_ei(identity, node, succ):
             node = self.remote_closest_preceding_finger(node, identity)
             succ = self.remote_find_successor(node)
-            start = format((int(node, 16) + 1) % ct.ID_MAX, 'x')
-            end = format((int(succ, 16) + 1) % ct.ID_MAX, 'x')
         return node
 
     def closest_preceding_finger(self, identity):
@@ -91,7 +87,7 @@ class Node(object):
         for i in range(ct.RING_SIZE_BIT, 0, -1):
             fnode = self._table.get_node(i)
             start = format((int(self._id, 16) + 1) % ct.ID_MAX, 'x')
-            if self._in_range(fnode, start, identity):
+            if self._in_range_ee(fnode, start, identity):
                 return fnode
         return self._id
 
@@ -138,7 +134,7 @@ class Node(object):
         for i in range(1, ct.RING_SIZE_BIT):
             start = self._table.get_start(i+1)
             fnode = self._table.get_node(i)
-            if self._in_range(start, self._id, fnode):
+            if self._in_range_ie(start, self._id, fnode):
                 self._table.set_node(i+1, fnode)
             else:
                 remote_succ = self.remote_find_successor(remote_node, start)
@@ -265,10 +261,10 @@ class Node(object):
         # TODO
         pass
 
-    def _in_range(self, node, start, end):
+    def _in_range_ie(self, node, start, end):
         '''
-        Test whether the node is in [start, end).
-        It will handle the wrap around problem.
+        Test whether the node is in [start, end). It will handle the wrap around problem.
+        'i' stands for including the start, 'e' stands for excluding the end.
 
         Args:
             node:   The node to be tested.
@@ -283,6 +279,39 @@ class Node(object):
         '''
         # TODO
         pass
+
+    def _in_range_ei(self, node, start, end):
+        '''
+        Test whether the node is in (start, end]. It will handle the wrap around problem.
+
+        Args:
+            node:   The node to be tested.
+            start:  The range start, included.
+            end:    The range end, excluded.
+
+        Returns:
+            True if in range. False otherwise.
+
+        Raises:
+            N/A
+        '''
+
+    def _in_range_ee(self, node, start, end):
+        '''
+        Test whether the node is in (start, end). It will handle the wrap around problem.
+
+        Args:
+            node:   The node to be tested.
+            start:  The range start, included.
+            end:    The range end, excluded.
+
+        Returns:
+            True if in range. False otherwise.
+
+        Raises:
+            N/A
+        '''
+
 
     # Advanced
     # def stablize(self):
