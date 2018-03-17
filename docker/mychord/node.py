@@ -88,8 +88,12 @@ class Node(object):
         Raises:
             N/A
         '''
-        # TODO
-        pass
+        for i in range(ct.RING_SIZE_BIT, 0, -1):
+            fnode = self._table.get_node(i)
+            start = format((int(self._id, 16) + 1) % ct.ID_MAX, 'x')
+            if self._in_range(fnode, start, identity):
+                return fnode
+        return self._id
 
     def join(self, remote_node):
         '''
