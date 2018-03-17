@@ -71,7 +71,7 @@ class Node(object):
             N/A
         '''
         pred = self.find_predecessor(identity)
-        return self.remote_find_successor()
+        return self.remote_find_successor(pred)
 
     def remote_find_successor(self, remote_node, identity):
         '''
@@ -80,6 +80,7 @@ class Node(object):
         Args:
             remote_node:    The remote node id.
             identity:       The identity to loop up.
+                            If None, return the remote node's successor.
 
         Returns:
             The id of the successor.
@@ -98,15 +99,23 @@ class Node(object):
             identity:   The identity of the object.
 
         Returns:
-            The identity of the predecessor in hex.
+            The identity of the predecessor.
 
         Raises:
             N/A
         '''
-        # TODO
-        pass
+        node = self._id
+        succ = self._table.get_node(1)
+        start = format((int(node, 16) + 1) % ct.ID_MAX, 'x')
+        end = format((int(succ, 16) + 1) % ct.ID_MAX, 'x')
+        while not identity _in_range(identity, start, end):
+            node = self.remote_closest_preceding_finger(node, identity)
+            succ = self.remote_find_successor(node)
+            start = format((int(node, 16) + 1) % ct.ID_MAX, 'x')
+            end = format((int(succ, 16) + 1) % ct.ID_MAX, 'x')
+        return node
 
-    def closest_preceding_node(self, identity):
+    def closest_preceding_finger(self, identity):
         '''
         Return the closest finger preceding id
 
