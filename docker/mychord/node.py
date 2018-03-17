@@ -131,6 +131,22 @@ class Node(object):
         # TODO
         pass
 
+    def remote_closest_preceding_finger(self, remote_node, identity):
+        '''
+        Ask the remote node to return the closest finger preceding id.
+
+        Args:
+            identity:   The identity of the object.
+
+        Returns:
+            The identity of the closest finger preceding id on remote node.
+
+        Raises:
+            N/A
+        '''
+        # TODO
+        pass
+
     def init_finger_table(self, remote_node):
         '''
         Initialize the calling node's finger table by the remote_node.
