@@ -311,8 +311,14 @@ class Node(object):
         Raises:
             N/A
         '''
-        # TODO
-        pass
+        int n_int = int(node, 16)
+        int s_int = int(start, 16)
+        int e_int = int(end, 16)
+        if s_int > e_int:       # wrap around
+            e_int += ct.TWO_EXP[ct.RING_SIZE_BIT]
+        elif s_int == e_int:      # empty set
+            return False
+        return s_int <= n_int < e_int
 
     def _in_range_ei(self, node, start, end):
         '''
@@ -329,6 +335,14 @@ class Node(object):
         Raises:
             N/A
         '''
+        int n_int = int(node, 16)
+        int s_int = int(start, 16)
+        int e_int = int(end, 16)
+        if s_int > e_int:       # wrap around
+            e_int += ct.TWO_EXP[ct.RING_SIZE_BIT]
+        elif s_int == e_int:      # empty set
+            return False
+        return s_int < n_int <= e_int
 
     def _in_range_ee(self, node, start, end):
         '''
@@ -345,7 +359,14 @@ class Node(object):
         Raises:
             N/A
         '''
-
+        int n_int = int(node, 16)
+        int s_int = int(start, 16)
+        int e_int = int(end, 16)
+        if s_int > e_int:       # wrap around
+            e_int += ct.TWO_EXP[ct.RING_SIZE_BIT]
+        if e_int - s_int <= 1:      # empty set
+            return False
+        return s_int < n_int < e_int
 
     # Advanced
     # def stablize(self):
