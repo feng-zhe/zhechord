@@ -58,13 +58,31 @@ class Node(object):
 
     def find_successor(self, identity):
         '''
-        Find the successor of this node.
+        Ask this node to find the successor of the identity.
 
         Args:
             identity:   The identity of the object.
+                        If None, return this nodes own successor.
 
         Returns:
             The identity of the successor in hex.
+
+        Raises:
+            N/A
+        '''
+        pred = self.find_predecessor(identity)
+        return self.remote_find_successor()
+
+    def remote_find_successor(self, remote_node, identity):
+        '''
+        Ask the remote node to find the successor of identity
+
+        Args:
+            remote_node:    The remote node id.
+            identity:       The identity to loop up.
+
+        Returns:
+            The id of the successor.
 
         Raises:
             N/A
@@ -74,7 +92,7 @@ class Node(object):
 
     def find_predecessor(self, identity):
         '''
-        Find the predecessor for identity.
+        Ask this node to find the predecessor of identity.
 
         Args:
             identity:   The identity of the object.
@@ -170,23 +188,6 @@ class Node(object):
         '''
         If s is i^th finger of n, update n’s finger table with s
         TODO
-        '''
-        # TODO
-        pass
-
-    def remote_find_successor(self, remote_node, identity):
-        '''
-        Ask the remote node to find the successor of this node.
-
-        Args:
-            remote_node:    The remote node id.
-            identity:       The identity to loop up.
-
-        Returns:
-            The id of the successor.
-
-        Raises:
-            N/A
         '''
         # TODO
         pass
