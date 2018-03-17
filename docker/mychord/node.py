@@ -34,28 +34,6 @@ class Node(object):
         self._predecessor = None
         self._table = ft.FingerTable(identity)
 
-    def join(self, remote_node):
-        '''
-        Create/join a chord ring.
-
-        Args:
-            remote_node:   The identity of the node which is already in the ring.
-                    If None, create a new ring.
-
-        Returns:
-            N/A
-
-        Raises:
-            N/A
-        '''
-        if remote_node:        # join a ring via node
-            self.init_finger_table(remote_node)
-            self.update_others()
-        else:       # the first one in the ring
-            self._predecessor = self._id
-            for i in range(1, ct.RING_SIZE_BIT+1):
-                self._table.set_node(1, self._id)
-
     def find_successor(self, identity):
         '''
         Ask this node to find the successor of the identity.
@@ -72,24 +50,6 @@ class Node(object):
         '''
         pred = self.find_predecessor(identity)
         return self.remote_find_successor(pred)
-
-    def remote_find_successor(self, remote_node, identity):
-        '''
-        Ask the remote node to find the successor of identity
-
-        Args:
-            remote_node:    The remote node id.
-            identity:       The identity to loop up.
-                            If None, return the remote node's successor.
-
-        Returns:
-            The id of the successor.
-
-        Raises:
-            N/A
-        '''
-        # TODO
-        pass
 
     def find_predecessor(self, identity):
         '''
@@ -124,6 +84,46 @@ class Node(object):
 
         Returns:
             The identity of the closest finger preceding id.
+
+        Raises:
+            N/A
+        '''
+        # TODO
+        pass
+
+    def join(self, remote_node):
+        '''
+        Create/join a chord ring.
+
+        Args:
+            remote_node:   The identity of the node which is already in the ring.
+                    If None, create a new ring.
+
+        Returns:
+            N/A
+
+        Raises:
+            N/A
+        '''
+        if remote_node:        # join a ring via node
+            self.init_finger_table(remote_node)
+            self.update_others()
+        else:       # the first one in the ring
+            self._predecessor = self._id
+            for i in range(1, ct.RING_SIZE_BIT+1):
+                self._table.set_node(1, self._id)
+
+    def remote_find_successor(self, remote_node, identity):
+        '''
+        Ask the remote node to find the successor of identity
+
+        Args:
+            remote_node:    The remote node id.
+            identity:       The identity to loop up.
+                            If None, return the remote node's successor.
+
+        Returns:
+            The id of the successor.
 
         Raises:
             N/A
