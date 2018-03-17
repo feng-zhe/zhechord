@@ -129,7 +129,7 @@ class Node(object):
         successor = self.remote_find_successor(remote_node, 
                                 self._table.get_start(1))
         self._table.set_node(1, successor)
-        self._predecessor = self.remote_get_predecessor(successor)
+        self._predecessor = self.remote_find_predecessor(successor)
         self.remote_set_predecessor(successor, self._id)
         for i in range(1, ct.RING_SIZE_BIT):
             start = self._table.get_start(i+1)
@@ -153,13 +153,25 @@ class Node(object):
         Raises:
             N/A
         '''
-        # TODO
-        pass
+        for i in range(1, ct.RING_SIZE_BIT+1):
+            # find last node p whose ith finger MIGHT be n
+            int_val = int(self._id, 16) - ct.TWO_EXP[i-1]
+            p = self.find_predecessor(format(int_val, 'x'))
+            self.remote_update_finger_table(p, self._id, i)
 
     def update_finger_table(self, s, i):
         '''
         If s is i^th finger of n, update n’s finger table with s
-        TODO
+
+        Args:
+            s:  The new id.
+            i:  Finger table entry index.
+
+        Returns:
+            N/A
+
+        Raises:
+            N/A
         '''
         # TODO
         pass
@@ -194,12 +206,14 @@ class Node(object):
         '''
         self._predecessor = identity
 
-    def remote_get_predecessor(self, remote_node):
+    def remote_find_predecessor(self, remote_node, identity):
         '''
-        Get the predecessor of the remote_node.
+        Find the predecessor of the identity on remote node.
 
         Args:
             remote_node:    The remote node id.
+            identity:       The identity to look up.
+                            If None, identity is remote node's identity.
 
         Returns:
             The id of the predecessor.
@@ -254,6 +268,24 @@ class Node(object):
 
         Returns:
             The identity of the closest finger preceding id on remote node.
+
+        Raises:
+            N/A
+        '''
+        # TODO
+        pass
+
+    def remote_update_finger_table(self, remote_node, s, i):
+        '''
+        On remote node, if s is i^th finger of n, update n’s finger table with s.
+
+        Args:
+            remote_node:    The remote node id.
+            s:  The new id.
+            i:  Finger table entry index.
+
+        Returns:
+            N/A
 
         Raises:
             N/A
