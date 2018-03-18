@@ -243,6 +243,7 @@ class Node(object):
             The id of the predecessor.
 
         Raises:
+            requests.exceptions.ConnectionError
             AssertionError
         '''
         url = 'http://{}/set_predecessor'.format(remote_node)
@@ -263,10 +264,15 @@ class Node(object):
             The id of the successor.
 
         Raises:
-            N/A
+            requests.exceptions.ConnectionError
+            AssertionError
+            KeyError
         '''
-        # TODO
-        pass
+        url = 'http://{}/find_predecessor'.format(remote_node)
+        data = { 'id': identity }
+        r = requests.post(url, data=data)
+        assert(r.status_code==200)
+        return r['id']
 
     def remote_closest_preceding_finger(self, remote_node, identity):
         '''
@@ -279,10 +285,15 @@ class Node(object):
             The identity of the closest finger preceding id on remote node.
 
         Raises:
-            N/A
+            requests.exceptions.ConnectionError
+            AssertionError
+            KeyError
         '''
-        # TODO
-        pass
+        url = 'http://{}/closest_preceding_finger'.format(remote_node)
+        data = { 'id': identity }
+        r = requests.post(url, data=data)
+        assert(r.status_code==200)
+        return r['id']
 
     def remote_update_finger_table(self, remote_node, s, i):
         '''
@@ -297,10 +308,14 @@ class Node(object):
             N/A
 
         Raises:
-            N/A
+            requests.exceptions.ConnectionError
+            AssertionError
         '''
-        # TODO
-        pass
+        url = 'http://{}/update_finger_table'.format(remote_node)
+        data = { 's': s, 'i': i }
+        r = requests.post(url, data=data)
+        assert(r.status_code==200)
+        return
 
     def _in_range_ie(self, node, start, end):
         '''
