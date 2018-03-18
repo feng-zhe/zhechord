@@ -246,7 +246,7 @@ class Node(object):
             AssertionError
         '''
         url = 'http://{}/set_predecessor'.format(remote_node)
-        data = { 'id': identity if identity else self._id }
+        data = { 'id': identity }
         r = requests.post(url, data=data)
         assert(r.status_code==200)
         return
