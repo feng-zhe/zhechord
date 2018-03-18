@@ -5,6 +5,7 @@ Reference:
 [2] paper by Ion Stoica*
 '''
 import hashlib
+import requests
 import mychord.finger_table as ft
 import mychord.constants as ct
 
@@ -177,7 +178,6 @@ class Node(object):
         if self._in_range_ie(s, self._id, self._table.get_node(i)):
             self._table.set_node(i, s)
             self.remote_update_finger_table(self._predecessor, s, i)
-                
 
     def get_predecessor(self):
         '''
@@ -222,10 +222,12 @@ class Node(object):
             The id of the predecessor.
 
         Raises:
-            N/A
+            requests.exceptions.ConnectionError
         '''
-        # TODO
-        pass
+        url = 'http://{}/find_predecessor'.format(remote_node)
+        data = { 'id': identity }
+        r = requests.post(url, data=data).json()
+        return r['id']
 
     def remote_set_predecessor(self, remote_node, identity):
         '''

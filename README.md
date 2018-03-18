@@ -1,3 +1,29 @@
 # ece578_final
-The final report for ece 578 advance operating system
-It is to implement the Chord Ring and test it with docker
+The final report for ece 578 advance operating system.
+It is to implement the Chord Ring and test it with docker.
+
+## Web API
+### /find_predecessor
+#### POST
+input:  `{'id': xxxx}`
+output: `{'id': xxxx}`
+
+### /set_predecessor
+#### POST
+input:  `{'id': xxxx}`
+output: `{}`
+
+### /find_successor
+#### POST
+input:  `{'id': xxxx}`
+output: `{'id': xxxx}`
+
+### /closet_preceding_finger
+#### POST
+input:  `{'id': xxxx}`
+output: `{'id': xxxx}`
+
+### /update_finger_table
+#### POST
+input:  `{'id': xxxx}`
+output: `{}`
