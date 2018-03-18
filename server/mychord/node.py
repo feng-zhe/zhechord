@@ -113,7 +113,7 @@ class Node(object):
         else:       # the first one in the ring
             self._predecessor = self._id
             for i in range(1, ct.RING_SIZE_BIT+1):
-                self._table.set_node(1, self._id)
+                self._table.set_node(i, self._id)
 
     def init_finger_table(self, remote_node):
         '''
@@ -227,9 +227,9 @@ class Node(object):
         '''
         url = 'http://{}:8000/find_predecessor'.format(remote_node)
         payload = { 'id': identity }
-        r = requests.post(url, json=payload).json()
+        r = requests.post(url, json=payload)
         assert(r.status_code==200)
-        return r['id']
+        return r.json()['id']
 
     def remote_set_predecessor(self, remote_node, identity):
         '''
@@ -272,7 +272,7 @@ class Node(object):
         payload = { 'id': identity }
         r = requests.post(url, json=payload)
         assert(r.status_code==200)
-        return r['id']
+        return r.json()['id']
 
     def remote_closest_preceding_finger(self, remote_node, identity):
         '''
@@ -293,7 +293,7 @@ class Node(object):
         payload = { 'id': identity }
         r = requests.post(url, json=payload)
         assert(r.status_code==200)
-        return r['id']
+        return r.json()['id']
 
     def remote_update_finger_table(self, remote_node, s, i):
         '''
