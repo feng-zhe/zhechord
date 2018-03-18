@@ -11,17 +11,22 @@ class ChordServerHandler(BaseHTTPRequestHandler):
         path = self.path
         # dispatch requests
         if path == '/find_predecessor':
-            pass
+            pred = sv.g_node.find_predecessor(data['id'])
+            _response(200, { 'id': pred })
         elif path == '/set_predecessor':
-            pass
+            sv.g_node.set_predecessor(data['id'])
+            _response(200, {})
         elif path == '/find_successor':
-            pass
+            succ = sv.g_node.find_successor(data['id'])
+            _response(200, { 'id': succ })
         elif path == '/closet_preceding_finger':
-            pass
+            cpf = sv.g_node.closet_preceding_finger(data['id'])
+            _response(200, { 'id': cpf })
         elif path == '/update_finger_table':
-            pass
+            sv.g_node.update_finger_table(data['s'], data['i'])
+            _response(200, {})
         else:
-            pass
+            _response(400, {})
 
     def _response(self, code, data):
         self.send_response(code)
