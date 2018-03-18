@@ -7,7 +7,8 @@ RUN apt-get update && \
         git && \
     pip3 install pipenv
 ENV LC_ALL="C.UTF-8" LANG="C.UTF-8"
-COPY docker/ /root/chord/
-WORKDIR /root/chord/
+COPY ./ /root/project/
+WORKDIR /root/project/server/mychord/
 RUN pipenv install
-CMD ["pipenv","run", "python", "server.py"]
+# use entrypoint so that we can pass arguements when starting containers
+ENTRYPOINT ["pipenv","run", "python", "server.py"]

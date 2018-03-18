@@ -1,7 +1,7 @@
 '''
 Shared values among files.
 '''
-import mychord.node as node
+import node
 
 # shared values
-g_node = node.Node()
+g_node = None

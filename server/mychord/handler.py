@@ -1,5 +1,5 @@
 from http.server import BaseHTTPRequestHandler
-import mychord.shared_values as sv
+import shared_values as sv
 
 class ChordServerHandler(BaseHTTPRequestHandler):
     def do_GET(self):

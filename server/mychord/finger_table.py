@@ -1,7 +1,7 @@
 '''
 This file contains code for finger table implementation.
 '''
-import mychord.constants as ct
+import constants as ct
 
 class FingerTable(object):
     '''

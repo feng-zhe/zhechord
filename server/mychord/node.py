@@ -6,8 +6,8 @@ Reference:
 '''
 import hashlib
 import requests
-import mychord.finger_table as ft
-import mychord.constants as ct
+import finger_table as ft
+import constants as ct
 
 class Node(object):
     '''
