@@ -51,7 +51,7 @@ class Node(object):
             N/A
         '''
         pred = self.find_predecessor(identity)
-        return self.remote_find_successor(pred)
+        return self.remote_find_successor(pred, pred)
 
     def find_predecessor(self, identity):
         '''
@@ -70,7 +70,7 @@ class Node(object):
         succ = self._table.get_node(1)
         while not self._in_range_ei(identity, node, succ):
             node = self.remote_closest_preceding_finger(node, identity)
-            succ = self.remote_find_successor(node)
+            succ = self.remote_find_successor(node, node)
         return node
 
     def closest_preceding_finger(self, identity):
@@ -131,7 +131,7 @@ class Node(object):
         successor = self.remote_find_successor(remote_node, 
                                 self._table.get_start(1))
         self._table.set_node(1, successor)
-        self._predecessor = self.remote_find_predecessor(successor)
+        self._predecessor = self.remote_find_predecessor(successor, successor)
         self.remote_set_predecessor(successor, self._id)
         for i in range(1, ct.RING_SIZE_BIT):
             start = self._table.get_start(i+1)
@@ -216,7 +216,6 @@ class Node(object):
         Args:
             remote_node:    The remote node id.
             identity:       The identity to look up.
-                            If None, identity is remote node's identity.
 
         Returns:
             The id of the predecessor.
@@ -227,7 +226,7 @@ class Node(object):
             KeyError
         '''
         url = 'http://{}/find_predecessor'.format(remote_node)
-        data = { 'id': identity if indentity else self._id }
+        data = { 'id': identity }
         r = requests.post(url, data=data).json()
         assert(r.status_code==200)
         return r['id']
@@ -239,7 +238,6 @@ class Node(object):
         Args:
             remote_node:    The remote node id.
             identity:       The new predecessor identity.
-                            If None, uses self id.
 
         Returns:
             The id of the predecessor.
@@ -260,7 +258,6 @@ class Node(object):
         Args:
             remote_node:    The remote node id.
             identity:       The identity to loop up.
-                            If None, return the remote node's successor.
 
         Returns:
             The id of the successor.
