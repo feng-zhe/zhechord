@@ -223,10 +223,13 @@ class Node(object):
 
         Raises:
             requests.exceptions.ConnectionError
+            AssertionError
+            KeyError
         '''
         url = 'http://{}/find_predecessor'.format(remote_node)
-        data = { 'id': identity }
+        data = { 'id': identity if indentity else self._id }
         r = requests.post(url, data=data).json()
+        assert(r.status_code==200)
         return r['id']
 
     def remote_set_predecessor(self, remote_node, identity):
@@ -236,15 +239,19 @@ class Node(object):
         Args:
             remote_node:    The remote node id.
             identity:       The new predecessor identity.
+                            If None, uses self id.
 
         Returns:
             The id of the predecessor.
 
         Raises:
-            N/A
+            AssertionError
         '''
-        # TODO
-        pass
+        url = 'http://{}/set_predecessor'.format(remote_node)
+        data = { 'id': identity if identity else self._id }
+        r = requests.post(url, data=data)
+        assert(r.status_code==200)
+        return
     
     def remote_find_successor(self, remote_node, identity):
         '''
