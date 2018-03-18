@@ -27,7 +27,7 @@ class FingerTable(object):
         '''
         self._table = {}
         for i in range(1, ct.RING_SIZE_BIT+1):     # i can be RING_SIZE_BIT
-            self._table[i] = FingerTableEntry(node_id, i)
+            self._table[i] = _FingerTableEntry(node_id, i)
 
     def get_start(self, i):
         '''
@@ -105,7 +105,7 @@ class FingerTable(object):
         self._table[i].node = node
         return True
 
-class FingerTableEntry(object):
+class _FingerTableEntry(object):
     '''
     Finger table entry class.
     '''
