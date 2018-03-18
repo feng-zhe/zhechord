@@ -225,9 +225,9 @@ class Node(object):
             AssertionError
             KeyError
         '''
-        url = 'http://{}/find_predecessor'.format(remote_node)
-        data = { 'id': identity }
-        r = requests.post(url, data=data).json()
+        url = 'http://{}:8000/find_predecessor'.format(remote_node)
+        payload = { 'id': identity }
+        r = requests.post(url, json=payload).json()
         assert(r.status_code==200)
         return r['id']
 
@@ -246,9 +246,9 @@ class Node(object):
             requests.exceptions.ConnectionError
             AssertionError
         '''
-        url = 'http://{}/set_predecessor'.format(remote_node)
-        data = { 'id': identity }
-        r = requests.post(url, data=data)
+        url = 'http://{}:8000/set_predecessor'.format(remote_node)
+        payload = { 'id': identity }
+        r = requests.post(url, json=payload)
         assert(r.status_code==200)
         return
     
@@ -268,9 +268,9 @@ class Node(object):
             AssertionError
             KeyError
         '''
-        url = 'http://{}/find_predecessor'.format(remote_node)
-        data = { 'id': identity }
-        r = requests.post(url, data=data)
+        url = 'http://{}:8000/find_predecessor'.format(remote_node)
+        payload = { 'id': identity }
+        r = requests.post(url, json=payload)
         assert(r.status_code==200)
         return r['id']
 
@@ -289,9 +289,9 @@ class Node(object):
             AssertionError
             KeyError
         '''
-        url = 'http://{}/closest_preceding_finger'.format(remote_node)
-        data = { 'id': identity }
-        r = requests.post(url, data=data)
+        url = 'http://{}:8000/closest_preceding_finger'.format(remote_node)
+        payload = { 'id': identity }
+        r = requests.post(url, json=payload)
         assert(r.status_code==200)
         return r['id']
 
@@ -311,9 +311,9 @@ class Node(object):
             requests.exceptions.ConnectionError
             AssertionError
         '''
-        url = 'http://{}/update_finger_table'.format(remote_node)
-        data = { 's': s, 'i': i }
-        r = requests.post(url, data=data)
+        url = 'http://{}:8000/update_finger_table'.format(remote_node)
+        payload = { 's': s, 'i': i }
+        r = requests.post(url, json=payload)
         assert(r.status_code==200)
         return
 

@@ -7,5 +7,6 @@ import mychord.node as node
 g_node = None
 
 def init(self_id, remote_id=None):
+    global g_node 
     g_node = node.Node(self_id)
     g_node.join(remote_id)
