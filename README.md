@@ -25,5 +25,5 @@ output: `{'id': xxxx}`
 
 ### /update_finger_table
 #### POST
-input:  `{'id': xxxx}`
+input:  `{'s': xxxx, 'i': x}`
 output: `{}`
