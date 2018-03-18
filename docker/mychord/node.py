@@ -6,6 +6,7 @@ Reference:
 '''
 import hashlib
 import mychord.finger_table as ft
+import mychord.constants as ct
 
 class Node(object):
     '''
@@ -311,9 +312,9 @@ class Node(object):
         Raises:
             N/A
         '''
-        int n_int = int(node, 16)
-        int s_int = int(start, 16)
-        int e_int = int(end, 16)
+        n_int = int(node, 16)
+        s_int = int(start, 16)
+        e_int = int(end, 16)
         if s_int > e_int:       # wrap around
             e_int += ct.TWO_EXP[ct.RING_SIZE_BIT]
         elif s_int == e_int:      # empty set
@@ -335,9 +336,9 @@ class Node(object):
         Raises:
             N/A
         '''
-        int n_int = int(node, 16)
-        int s_int = int(start, 16)
-        int e_int = int(end, 16)
+        n_int = int(node, 16)
+        s_int = int(start, 16)
+        e_int = int(end, 16)
         if s_int > e_int:       # wrap around
             e_int += ct.TWO_EXP[ct.RING_SIZE_BIT]
         elif s_int == e_int:      # empty set
@@ -359,9 +360,9 @@ class Node(object):
         Raises:
             N/A
         '''
-        int n_int = int(node, 16)
-        int s_int = int(start, 16)
-        int e_int = int(end, 16)
+        n_int = int(node, 16)
+        s_int = int(start, 16)
+        e_int = int(end, 16)
         if s_int > e_int:       # wrap around
             e_int += ct.TWO_EXP[ct.RING_SIZE_BIT]
         if e_int - s_int <= 1:      # empty set
