@@ -6,8 +6,8 @@ Reference:
 '''
 import hashlib
 import requests
-import finger_table as ft
-import constants as ct
+import mychord.finger_table as ft
+import mychord.constants as ct
 
 class Node(object):
     '''
@@ -93,7 +93,7 @@ class Node(object):
                 return fnode
         return self._id
 
-    def join(self, remote_node):
+    def join(self, remote_node=None):
         '''
         Create/join a chord ring.
 

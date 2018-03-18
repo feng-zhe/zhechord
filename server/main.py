@@ -3,9 +3,8 @@ Main file for running a node server
 '''
 import sys
 from http.server import HTTPServer
-import handler as handler
-import node
-import shared_values as sv
+import mychord.handler as handler
+import mychord.shared_values as sv
 
 def run(server_class=HTTPServer, handler_class=handler.ChordServerHandler):
     server_address = ('', 8000)
@@ -17,7 +16,9 @@ if __name__ == '__main__':
         print('Usage: server.py SELF_ID [JOIN_NODE_ID]')
     else:
         # init node
-        sv.g_node = node.Node(sys.argv[1])
-        sv.g_node.join(sys.argv[2] if len(sys.argv)==3 else None)
+        if len(sys.argv)==2:
+            sv.init(sys.argv[1])
+        else:
+            sv.init(sys.argv[1], sys.argv[2])
         # listen to requests
         run()
