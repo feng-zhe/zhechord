@@ -1,5 +1,6 @@
 import hashlib
 import unittest
+import mychord.constants as ct
 from mychord.finger_table import FingerTable
 
 class TestFingerTable(unittest.TestCase):
@@ -10,9 +11,9 @@ class TestFingerTable(unittest.TestCase):
         h = m.hexdigest()
         ft = FingerTable(h)
         self.assertTrue(ft.get_start(1))
-        self.assertTrue(ft.get_start(160))
+        self.assertTrue(ft.get_start(ct.RING_SIZE_BIT))
         self.assertFalse(ft.get_start(0))
-        self.assertFalse(ft.get_start(161))
+        self.assertFalse(ft.get_start(ct.RING_SIZE_BIT + 1))
 
     def test_rw_node(self):
         m = hashlib.sha1()
