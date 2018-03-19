@@ -129,6 +129,11 @@ class TestChordNode(unittest.TestCase):
         end = format(int(h, 16)//2, 'x')
         self.assertTrue(node._in_range_ee(test, start, end))
 
+    def test_format(self):
+        node = Node('0000000000000000000000000000000000000000')
+        h = node._format(10)
+        self.assertEqual(h, '000000000000000000000000000000000000000a')
+
     @patch('requests.post')
     def test_join(self, post_mock):
         # set up mock server
