@@ -45,7 +45,7 @@ class TestChordNode(unittest.TestCase):
         end = format(int(h, 16) + 20, 'x')
         self.assertFalse(node._in_range_ie(test, start, end))
         # start>end, h is in
-        test = format(int(h, 16) + 123456, 'x')
+        test = format(1, '040x')
         start = h
         end = format(int(h, 16)//2, 'x')
         self.assertTrue(node._in_range_ie(test, start, end))
@@ -82,7 +82,7 @@ class TestChordNode(unittest.TestCase):
         end = format(int(h, 16) + 20, 'x')
         self.assertFalse(node._in_range_ei(test, start, end))
         # start>end, test is in
-        test = format(int(h, 16) + 123456, 'x')
+        test = format(1, '040x')
         start = h
         end = format(int(h, 16)//2, 'x')
         self.assertTrue(node._in_range_ei(test, start, end))
@@ -124,7 +124,7 @@ class TestChordNode(unittest.TestCase):
         end = format(int(h, 16) + 20, 'x')
         self.assertFalse(node._in_range_ee(test, start, end))
         # start>end, test is in
-        test = format(int(h, 16) + 123456, 'x')
+        test = format(1, '040x')
         start = h
         end = format(int(h, 16)//2, 'x')
         self.assertTrue(node._in_range_ee(test, start, end))
@@ -135,7 +135,7 @@ class TestChordNode(unittest.TestCase):
         ms = MockServer()
         post_mock.side_effect = lambda url, json : ms.post(url, json)
         # test 1: node 1 creates a new ring
-        node_1 = Node('b444ac06613fc8d63795be9ad0beaf55011936ac')
+        node_1 = Node('1000000000000000000000000000000000000000')
         ms.add_node(node_1._id, node_1)       # add this node to mocked server
         node_1.join()
         for i in range(1, ct.RING_SIZE_BIT+1):      # should point to itself
@@ -143,7 +143,7 @@ class TestChordNode(unittest.TestCase):
                     node_1._table.get_node(i), 
                     node_1._id)
         # test 2: join node 2 to then ring
-        node_2 = Node('109f4b3c50d7b0df729d299bc6f8e9ef9066971f')
+        node_2 = Node('7000000000000000000000000000000000000000')
         ms.add_node(node_2._id, node_2)
         node_2.join(node_1._id)
         self.assertEqual(node_2._table.get_node(1), node_1._id)
