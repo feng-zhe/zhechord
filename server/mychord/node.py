@@ -191,6 +191,8 @@ class Node(object):
     def update_finger_table(self, s, i):
         '''
         If s is i^th finger of n, update n’s finger table with s
+        Original pseudocode has  missing update issue. 
+        And be aware of the definition of finger table.
 
         Args:
             s:  The new id.
@@ -205,7 +207,7 @@ class Node(object):
         logger.debug('({}) updating finger table, index {} with {}'
                         .format(self._id, i, s))
         fnode = self._table.get_node(i)
-        if self._id == fnode:       # fix missing update issue
+        if self._id == fnode and s >= fnode:       # fix missing update issue
             self._table.set_node(i, s)
             logger.debug('({}) updated finger table, index {} with {}'
                             .format(self._id, i, s))
