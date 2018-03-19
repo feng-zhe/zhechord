@@ -2,9 +2,12 @@
 Main file for running a node server
 '''
 import sys
+import logging
 from http.server import HTTPServer
 import mychord.handler as handler
 import mychord.shared_values as sv
+
+logging.basicConfig(level=logging.INFO)
 
 def run(server_class=HTTPServer, handler_class=handler.ChordServerHandler):
     server_address = ('', 8000)

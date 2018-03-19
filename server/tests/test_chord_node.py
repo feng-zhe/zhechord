@@ -1,8 +1,13 @@
 import unittest
+import logging
 from unittest.mock import patch
 import mychord.constants as ct
 from mychord.node import Node
 from tests.mock_server import MockServer
+
+logging.basicConfig(level=logging.INFO)
+
+logger = logging.getLogger(__name__)
 
 class TestChordNode(unittest.TestCase):
     '''
@@ -129,20 +134,23 @@ class TestChordNode(unittest.TestCase):
         # set up
         ms = MockServer()
         post_mock.side_effect = lambda url, json : ms.post(url, json)
-        id_1 = 'b444ac06613fc8d63795be9ad0beaf55011936ac'
-        id_2 = '109f4b3c50d7b0df729d299bc6f8e9ef9066971f'
         # test1: new ring
-        node_1 = Node(id_1)
-        ms.add_node(id_1, node_1)       # add this node to mocked server
+        node_1 = Node('b444ac06613fc8d63795be9ad0beaf55011936ac')
+        ms.add_node(node_1._id, node_1)       # add this node to mocked server
         node_1.join()
         for i in range(1, ct.RING_SIZE_BIT+1):      # should point to itself
             self.assertEqual(
                     node_1._table.get_node(i), 
-                    id_1)
+                    node_1._id)
         # test2: join to a ring
-        node_2 = Node(id_2)
-        ms.add_node(id_2, node_2)
-        node_2.join(id_1)
+        node_2 = Node('109f4b3c50d7b0df729d299bc6f8e9ef9066971f')
+        ms.add_node(node_2._id, node_2)
+        node_2.join(node_1._id)
+        self.assertEqual(node_2._table.get_node(1), node_1._id)
+        self.assertEqual(node_2._table.get_node(ct.RING_SIZE_BIT), node_1._id)
+        self.assertEqual(node_2.find_predecessor(node_2._id), node_1._id)
+        self.assertEqual(node_1._table.get_node(1), node_2._id)
+        self.assertEqual(node_1.find_predecessor(node_1._id), node_2._id)
 
 if __name__ == '__main__':
     unittest.main()

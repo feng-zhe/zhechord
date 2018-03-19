@@ -5,9 +5,12 @@ Reference:
 [2] paper by Ion Stoica*
 '''
 import hashlib
+import logging
 import requests
 import mychord.finger_table as ft
 import mychord.constants as ct
+
+logger = logging.getLogger(__name__)
 
 class Node(object):
     '''
@@ -50,8 +53,16 @@ class Node(object):
         Raises:
             N/A
         '''
-        pred = self.find_predecessor(identity)
-        return self.remote_find_successor(pred, pred)
+        logger.debug('({}) finding successor of {}'
+                        .format(self._id, identity))
+        if self._id == identity:        # fix infinit loop issue
+            succ = self._table.get_node(1)
+        else:
+            pred = self.find_predecessor(identity)
+            succ = self.remote_find_successor(pred, pred)
+        logger.debug('({}) found successor of {} is {}'
+                        .format(self._id, identity, succ))
+        return succ
 
     def find_predecessor(self, identity):
         '''
@@ -66,11 +77,21 @@ class Node(object):
         Raises:
             N/A
         '''
-        node = self._id
-        succ = self._table.get_node(1)
-        while not self._in_range_ei(identity, node, succ):
-            node = self.remote_closest_preceding_finger(node, identity)
-            succ = self.remote_find_successor(node, node)
+        logger.debug('({}) finding precedessor of {}'
+                        .format(self._id, identity))
+        if self._id == identity:        # fix infinite loop issue
+            node = self._predecessor
+        else:
+            node = self._id
+            succ = self._table.get_node(1)
+            while not self._in_range_ei(identity, node, succ):
+                cpt = self.remote_closest_preceding_finger(node, identity)
+                if cpt == node:     # fix infinite loop issue
+                    break
+                node = cpt
+                succ = self.remote_find_successor(node, node)
+        logger.debug('({}) found precedessor of {} is {}'
+                        .format(self._id, identity, node))
         return node
 
     def closest_preceding_finger(self, identity):
@@ -108,9 +129,12 @@ class Node(object):
             N/A
         '''
         if remote_node:        # join a ring via node
+            logger.debug('({}) join a ring via {}'
+                    .format(self._id, remote_node))
             self.init_finger_table(remote_node)
             self.update_others()
         else:       # the first one in the ring
+            logger.debug('({}) create a new ring'.format(self._id))
             self._predecessor = self._id
             for i in range(1, ct.RING_SIZE_BIT+1):
                 self._table.set_node(i, self._id)
@@ -128,11 +152,12 @@ class Node(object):
         Raises:
             N/A
         '''
-        successor = self.remote_find_successor(remote_node, 
+        logger.debug('({}) initializing finger table'.format(self._id))
+        succ = self.remote_find_successor(remote_node, 
                                 self._table.get_start(1))
-        self._table.set_node(1, successor)
-        self._predecessor = self.remote_find_predecessor(successor, successor)
-        self.remote_set_predecessor(successor, self._id)
+        self._table.set_node(1, succ)
+        self._predecessor = self.remote_find_predecessor(succ, succ)
+        self.remote_set_predecessor(succ, self._id)
         for i in range(1, ct.RING_SIZE_BIT):
             start = self._table.get_start(i+1)
             fnode = self._table.get_node(i)
@@ -141,6 +166,7 @@ class Node(object):
             else:
                 remote_succ = self.remote_find_successor(remote_node, start)
                 self._table.set_node(i+1, remote_succ)
+        logger.debug('({}) initialized finger table'.format(self._id))
             
     def update_others(self):
         '''
@@ -268,11 +294,16 @@ class Node(object):
             AssertionError
             KeyError
         '''
+        logger.debug('({}) ask {} to find successor of {}'
+                        .format(self._id, remote_node, identity))
         url = 'http://{}:8000/find_predecessor'.format(remote_node)
         payload = { 'id': identity }
         r = requests.post(url, json=payload)
         assert(r.status_code==200)
-        return r.json()['id']
+        succ = r.json()['id']
+        logger.debug('({}) {} found successor of {} is {}'
+                        .format(self._id, remote_node, identity, succ))
+        return succ
 
     def remote_closest_preceding_finger(self, remote_node, identity):
         '''
@@ -289,11 +320,16 @@ class Node(object):
             AssertionError
             KeyError
         '''
+        logger.debug('({}) ask {} to find closest preceding finger of {}'
+                        .format(self._id, remote_node, identity))
         url = 'http://{}:8000/closest_preceding_finger'.format(remote_node)
         payload = { 'id': identity }
         r = requests.post(url, json=payload)
         assert(r.status_code==200)
-        return r.json()['id']
+        cpt = r.json()['id']
+        logger.debug('({}) ask {} to find closest preceding finger of {} is {}'
+                        .format(self._id, remote_node, identity, cpt))
+        return cpt
 
     def remote_update_finger_table(self, remote_node, s, i):
         '''
