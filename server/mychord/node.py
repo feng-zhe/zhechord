@@ -159,13 +159,23 @@ class Node(object):
         self._predecessor = self.remote_find_predecessor(succ, succ)
         self.remote_set_predecessor(succ, self._id)
         for i in range(1, ct.RING_SIZE_BIT):
+            logger.debug('({}) initializing finger table index {}'
+                    .format(self._id, i+1))
             start = self._table.get_start(i+1)
             fnode = self._table.get_node(i)
             if self._in_range_ie(start, self._id, fnode):
+                logger.debug(('({}) initializing finger table index {}, '
+                        + 'same as previous one').format(self._id, i+1))
                 self._table.set_node(i+1, fnode)
+                logger.debug(('({}) initialized finger table index {} '
+                        + 'with {}').format(self._id, i+1, fnode))
             else:
+                logger.debug(('({}) initializing finger table index {}, '
+                        + 'not same as previous one').format(self._id, i+1))
                 remote_succ = self.remote_find_successor(remote_node, start)
                 self._table.set_node(i+1, remote_succ)
+                logger.debug(('({}) initialized finger table index {} '
+                        + 'with {}').format(self._id, i+1, remote_succ))
         logger.debug('({}) initialized finger table'.format(self._id))
             
     def update_others(self):
