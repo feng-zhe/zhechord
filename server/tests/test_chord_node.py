@@ -134,6 +134,11 @@ class TestChordNode(unittest.TestCase):
         h = node._format(10)
         self.assertEqual(h, '000000000000000000000000000000000000000a')
 
+    def test_add(self):
+        node = Node('0000000000000000000000000000000000000000')
+        h = node._add(node._id, -1)
+        self.assertEqual(h, 'ffffffffffffffffffffffffffffffffffffffff')
+
     @patch('requests.post')
     def test_join(self, post_mock):
         # set up mock server
@@ -156,9 +161,9 @@ class TestChordNode(unittest.TestCase):
         node_2.join(node_1._id)
         # node 1 status
         self.assertEqual(node_1._table.get_node(1), node_2._id)
-        self.assertEqual(node_1.find_predecessor(node_1._id), node_2._id)
         self.assertEqual(node_1._table.get_node(2), node_2._id)
         self.assertNotEqual(node_1._table.get_node(3), node_2._id)
+        self.assertEqual(node_1.find_predecessor(node_1._id), node_2._id)
         # node 2 status
         self.assertEqual(node_2._table.get_node(1), node_1._id)
         self.assertEqual(node_2._table.get_node(2), node_1._id)
