@@ -147,7 +147,6 @@ class TestChordNode(unittest.TestCase):
         ms.add_node(node_2._id, node_2)
         node_2.join(node_1._id)
         self.assertEqual(node_2._table.get_node(1), node_1._id)
-        self.assertEqual(node_2._table.get_node(ct.RING_SIZE_BIT), node_1._id)
         self.assertEqual(node_2.find_predecessor(node_2._id), node_1._id)
         self.assertEqual(node_1._table.get_node(1), node_2._id)
         self.assertEqual(node_1.find_predecessor(node_1._id), node_2._id)
