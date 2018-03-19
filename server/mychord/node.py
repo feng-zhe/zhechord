@@ -181,12 +181,13 @@ class Node(object):
         Raises:
             N/A
         '''
-        logger.debug('({}) updating others')
+        logger.debug('({}) updating others'.format(self._id))
         for i in range(1, ct.RING_SIZE_BIT+1):
             # find last node p whose ith finger MIGHT be n
             int_val = int(self._id, 16) - ct.TWO_EXP[i-1]
             p = self.find_predecessor(self._format(int_val))
             self.remote_update_finger_table(p, self._id, i)
+        logger.debug('({}) updated others'.format(self._id))
 
     def update_finger_table(self, s, i):
         '''
