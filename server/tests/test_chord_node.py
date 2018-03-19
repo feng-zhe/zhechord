@@ -5,7 +5,7 @@ import mychord.constants as ct
 from mychord.node import Node
 from tests.mock_server import MockServer
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 logger = logging.getLogger(__name__)
 
@@ -134,7 +134,7 @@ class TestChordNode(unittest.TestCase):
         # set up
         ms = MockServer()
         post_mock.side_effect = lambda url, json : ms.post(url, json)
-        # test1: new ring
+        # test 1: node 1 creates a new ring
         node_1 = Node('b444ac06613fc8d63795be9ad0beaf55011936ac')
         ms.add_node(node_1._id, node_1)       # add this node to mocked server
         node_1.join()
@@ -142,7 +142,7 @@ class TestChordNode(unittest.TestCase):
             self.assertEqual(
                     node_1._table.get_node(i), 
                     node_1._id)
-        # test2: join to a ring
+        # test 2: join node 2 to then ring
         node_2 = Node('109f4b3c50d7b0df729d299bc6f8e9ef9066971f')
         ms.add_node(node_2._id, node_2)
         node_2.join(node_1._id)
@@ -150,6 +150,8 @@ class TestChordNode(unittest.TestCase):
         self.assertEqual(node_2.find_predecessor(node_2._id), node_1._id)
         self.assertEqual(node_1._table.get_node(1), node_2._id)
         self.assertEqual(node_1.find_predecessor(node_1._id), node_2._id)
+        # test 3: join node 3 to the ring
+        # TODO
 
 if __name__ == '__main__':
     unittest.main()
