@@ -77,7 +77,7 @@ class Node(object):
         Raises:
             N/A
         '''
-        logger.debug('({}) finding precedessor of {}'
+        logger.debug('({}) finding predecessor of {}'
                         .format(self._id, identity))
         if self._id == identity:        # fix infinite loop issue
             node = self._predecessor
@@ -90,7 +90,7 @@ class Node(object):
                     break
                 node = cpt
                 succ = self.remote_find_successor(node, node)
-        logger.debug('({}) found precedessor of {} is {}'
+        logger.debug('({}) found predecessor of {} is {}'
                         .format(self._id, identity, node))
         return node
 
@@ -182,6 +182,8 @@ class Node(object):
         '''
         Update all nodes whose finger tables should refer to n
 
+        Based in paper description, it shouldn't update itself.
+
         Args:
             N/A
 
@@ -196,6 +198,8 @@ class Node(object):
             # find last node p whose ith finger MIGHT be n
             node = self._add(self._id, - ct.TWO_EXP[i-1])
             p = self.find_predecessor(node)
+            if p == self._id:       # try to fix update itself issue.
+                continue
             self.remote_update_finger_table(p, self._id, i)
         logger.debug('({}) updated others'.format(self._id))
 
@@ -373,6 +377,8 @@ class Node(object):
             requests.exceptions.ConnectionError
             AssertionError
         '''
+        logger.debug('({}) ask {} to update finger table with s={} i={}'
+                        .format(self._id, remote_node, s, i))
         url = 'http://{}:8000/update_finger_table'.format(remote_node)
         payload = { 's': s, 'i': i }
         r = requests.post(url, json=payload)
