@@ -45,7 +45,6 @@ class Node(object):
 
         Args:
             identity:   The identity of the object.
-                        If None, return this nodes own successor.
 
         Returns:
             The identity of the successor in hex.
@@ -55,11 +54,8 @@ class Node(object):
         '''
         logger.debug('({}) finding successor of {}'
                         .format(self._id, identity))
-        if self._id == identity:        # fix infinit loop issue
-            succ = self._table.get_node(1)
-        else:
-            pred = self.find_predecessor(identity)
-            succ = self.remote_find_successor(pred, pred)
+        pred = self.find_predecessor(identity)
+        succ = self.remote_get_successor(pred)
         logger.debug('({}) found successor of {} is {}'
                         .format(self._id, identity, succ))
         return succ
@@ -79,17 +75,14 @@ class Node(object):
         '''
         logger.debug('({}) finding predecessor of {}'
                         .format(self._id, identity))
-        if self._id == identity:        # fix infinite loop issue
-            node = self._predecessor
-        else:
-            node = self._id
-            succ = self._table.get_node(1)
-            while not self._in_range_ei(identity, node, succ):
-                cpt = self.remote_closest_preceding_finger(node, identity)
-                if cpt == node:     # fix infinite loop issue
-                    break
-                node = cpt
-                succ = self.remote_find_successor(node, node)
+        node = self._id
+        succ = self._table.get_node(1)
+        while not self._in_range_ei(identity, node, succ):
+            cpt = self.remote_closest_preceding_finger(node, identity)
+            if cpt == node:     # fix infinite loop issue
+                break
+            node = cpt
+            succ = self.remote_get_successor(node)
         logger.debug('({}) found predecessor of {} is {}'
                         .format(self._id, identity, node))
         return node
@@ -160,7 +153,7 @@ class Node(object):
         self._table.set_node(1, succ)
         logger.debug(('({}) initialized finger table index {} '
                 + 'with {}').format(self._id, 1, succ))
-        self._predecessor = self.remote_find_predecessor(succ, succ)
+        self._predecessor = self.remote_get_predecessor(succ)
         self.remote_set_predecessor(succ, self._id)
         for i in range(1, ct.RING_SIZE_BIT):
             logger.debug('({}) initializing finger table index {}'
@@ -202,7 +195,7 @@ class Node(object):
             # find last node p whose ith finger MIGHT be n
             node = self._add(self._id, - ct.TWO_EXP[i-1])
             p = self.find_predecessor(node)
-            if p == self._id:       # try to fix update itself issue.
+            if p == self._id:       # fix update itself issue.
                 continue
             self.remote_update_finger_table(p, self._id, i)
         logger.debug('({}) updated others'.format(self._id))
@@ -223,7 +216,7 @@ class Node(object):
         Raises:
             N/A
         '''
-        logger.debug('({}) updating finger table, index {} with {}'
+        logger.debug('({}) try to update finger table, index {} with {}'
                         .format(self._id, i, s))
         fnode = self._table.get_node(i)
         if self._id == fnode and s >= fnode:       # fix missing update issue
@@ -269,6 +262,21 @@ class Node(object):
         '''
         self._predecessor = identity
 
+    def get_successor(self):
+        '''
+        Get the successor of this current node.
+
+        Args:
+            N/A
+
+        Returns:
+            The id of the sucsessor.
+
+        Raises:
+            N/A
+        '''
+        return self._table.get_node(1)
+
     def remote_find_predecessor(self, remote_node, identity):
         '''
         Find the predecessor of the identity on remote node.
@@ -291,6 +299,32 @@ class Node(object):
         assert(r.status_code==200)
         return r.json()['id']
 
+    def remote_get_predecessor(self, remote_node):
+        '''
+        Get the predecessor of the remote node.
+
+        Args:
+            remote_node:    The remote node id.
+
+        Returns:
+            The id of the predecessor.
+
+        Raises:
+            requests.exceptions.ConnectionError
+            AssertionError
+            KeyError
+        '''
+        logger.debug('({}) ask {} for its own predecessor'
+                        .format(self._id, remote_node))
+        url = 'http://{}:8000/get_predecessor'.format(remote_node)
+        payload = {}
+        r = requests.post(url, json=payload)
+        pred = r.json()['id']
+        assert(r.status_code==200)
+        logger.debug('({}) ask {} for its own predecessor is {}'
+                        .format(self._id, remote_node, pred))
+        return pred
+
     def remote_set_predecessor(self, remote_node, identity):
         '''
         Set the predecessor of the remote_node.
@@ -306,19 +340,49 @@ class Node(object):
             requests.exceptions.ConnectionError
             AssertionError
         '''
+        logger.debug('({}) ask {} to set its predecessor as {}'
+                        .format(self._id, remote_node, identity))
         url = 'http://{}:8000/set_predecessor'.format(remote_node)
         payload = { 'id': identity }
         r = requests.post(url, json=payload)
         assert(r.status_code==200)
+        logger.debug('({}) ask {} to set its predecessor as {} is done'
+                        .format(self._id, remote_node, identity))
         return
     
+    def remote_get_successor(self, remote_node):
+        '''
+        Get the successor of the remote node.
+
+        Args:
+            remote_node:    The remote node id.
+
+        Returns:
+            The id of the successor.
+
+        Raises:
+            requests.exceptions.ConnectionError
+            AssertionError
+            KeyError
+        '''
+        logger.debug('({}) ask {} for its own successor'
+                        .format(self._id, remote_node))
+        url = 'http://{}:8000/get_successor'.format(remote_node)
+        payload = {}
+        r = requests.post(url, json=payload)
+        assert(r.status_code==200)
+        succ = r.json()['id']
+        logger.debug('({}) ask {} for its own successor is {}'
+                        .format(self._id, remote_node, succ))
+        return succ
+
     def remote_find_successor(self, remote_node, identity):
         '''
         Ask the remote node to find the successor of identity
 
         Args:
             remote_node:    The remote node id.
-            identity:       The identity to loop up.
+            identity:       The identity to look up.
 
         Returns:
             The id of the successor.
@@ -335,7 +399,7 @@ class Node(object):
         r = requests.post(url, json=payload)
         assert(r.status_code==200)
         succ = r.json()['id']
-        logger.debug('({}) {} found successor of {} is {}'
+        logger.debug('({}) ask {} to find successor of {} is {}'
                         .format(self._id, remote_node, identity, succ))
         return succ
 

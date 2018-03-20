@@ -30,10 +30,16 @@ class MockServer(object):
         if path == '/find_predecessor':
             pred = self._nodes[node_id].find_predecessor(json['id'])
             rsp = MockResponse(200, {'id': pred})
+        elif path == '/get_predecessor':
+            pred = self._nodes[node_id].get_predecessor()
+            rsp = MockResponse(200, {'id': pred})
         elif path == '/set_predecessor':
             self._nodes[node_id].set_predecessor(json['id'])
         elif path == '/find_successor':
             succ = self._nodes[node_id].find_successor(json['id'])
+            rsp = MockResponse(200, {'id': succ})
+        elif path == '/get_successor':
+            succ = self._nodes[node_id].get_successor()
             rsp = MockResponse(200, {'id': succ})
         elif path == '/closest_preceding_finger':
             cpf = self._nodes[node_id].closest_preceding_finger(json['id'])

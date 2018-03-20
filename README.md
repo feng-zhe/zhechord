@@ -8,6 +8,11 @@ It is to implement the Chord Ring and test it with docker.
 input:  `{'id': xxxx}`
 output: `{'id': xxxx}`
 
+### /get_predecessor
+#### POST
+input:  `{}`
+output: `{'id': xxxx}`
+
 ### /set_predecessor
 #### POST
 input:  `{'id': xxxx}`
@@ -16,6 +21,11 @@ output: `{}`
 ### /find_successor
 #### POST
 input:  `{'id': xxxx}`
+output: `{'id': xxxx}`
+
+### /get_successor
+#### POST
+input:  `{}`
 output: `{'id': xxxx}`
 
 ### /closet_preceding_finger

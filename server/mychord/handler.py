@@ -13,12 +13,18 @@ class ChordServerHandler(BaseHTTPRequestHandler):
         if path == '/find_predecessor':
             pred = sv.g_node.find_predecessor(data['id'])
             _response(200, { 'id': pred })
+        elif path == '/get_predecessor':
+            pred = sv.g_node.get_predecessor()
+            _response(200, { 'id': pred})
         elif path == '/set_predecessor':
             sv.g_node.set_predecessor(data['id'])
             _response(200, {})
         elif path == '/find_successor':
             succ = sv.g_node.find_successor(data['id'])
             _response(200, { 'id': succ })
+        elif path == '/get_successor':
+            succ = sv.g_node.get_successor()
+            _response(200, { 'id': succ})
         elif path == '/closet_preceding_finger':
             cpf = sv.g_node.closet_preceding_finger(data['id'])
             _response(200, { 'id': cpf })
