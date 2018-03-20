@@ -153,9 +153,13 @@ class Node(object):
             N/A
         '''
         logger.debug('({}) initializing finger table'.format(self._id))
+        logger.debug('({}) initializing finger table index {}'
+                .format(self._id, 1))
         succ = self.remote_find_successor(remote_node, 
                                 self._table.get_start(1))
         self._table.set_node(1, succ)
+        logger.debug(('({}) initialized finger table index {} '
+                + 'with {}').format(self._id, 1, succ))
         self._predecessor = self.remote_find_predecessor(succ, succ)
         self.remote_set_predecessor(succ, self._id)
         for i in range(1, ct.RING_SIZE_BIT):
@@ -326,7 +330,7 @@ class Node(object):
         '''
         logger.debug('({}) ask {} to find successor of {}'
                         .format(self._id, remote_node, identity))
-        url = 'http://{}:8000/find_predecessor'.format(remote_node)
+        url = 'http://{}:8000/find_successor'.format(remote_node)
         payload = { 'id': identity }
         r = requests.post(url, json=payload)
         assert(r.status_code==200)
