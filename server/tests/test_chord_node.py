@@ -141,36 +141,51 @@ class TestChordNode(unittest.TestCase):
 
     @patch('requests.post')
     def test_join(self, post_mock):
+        '''
+        Use the example in paper.
+        '''
         # set up mock server
         ms = MockServer()
         post_mock.side_effect = lambda url, json : ms.post(url, json)
         # set up smaller ring
         ct.RING_SIZE_BIT = 3
         ct.init()
-        # test 1: node 1 creates a new ring
-        node_1 = Node('0')
-        ms.add_node(node_1._id, node_1)       # add this node to mocked server
-        node_1.join()
+        # test 1: node 0 creates a new ring
+        node_0 = Node('0')
+        ms.add_node(node_0._id, node_0)       # add this node to mocked server
+        node_0.join()
         for i in range(1, ct.RING_SIZE_BIT+1):      # should point to itself
             self.assertEqual(
-                    node_1._table.get_node(i), 
-                    node_1._id)
-        # test 2: join node 2 to then ring
-        node_2 = Node('3')
-        ms.add_node(node_2._id, node_2)
-        node_2.join(node_1._id)
-        # node 1 status
-        self.assertEqual(node_1._table.get_node(1), node_2._id)
-        self.assertEqual(node_1._table.get_node(2), node_2._id)
-        self.assertNotEqual(node_1._table.get_node(3), node_2._id)
-        self.assertEqual(node_1.find_predecessor(node_1._id), node_2._id)
-        # node 2 status
-        self.assertEqual(node_2._table.get_node(1), node_1._id)
-        self.assertEqual(node_2._table.get_node(2), node_1._id)
-        self.assertEqual(node_2._table.get_node(3), node_1._id)
-        self.assertEqual(node_2.find_predecessor(node_2._id), node_1._id)
-        # test 3: join node 3 to the ring
-        # TODO
+                    node_0._table.get_node(i), 
+                    node_0._id)
+        # test 2: join node 3 to then ring
+        node_3 = Node('3')
+        ms.add_node(node_3._id, node_3)
+        node_3.join(node_0._id)
+        self.assertEqual(node_0._table.get_node(1), node_3._id) # node 0 status
+        self.assertEqual(node_0._table.get_node(2), node_3._id)
+        self.assertEqual(node_0._table.get_node(3), node_0._id)
+        self.assertEqual(node_0.find_predecessor(node_0._id), node_3._id)
+        self.assertEqual(node_3._table.get_node(1), node_0._id) # node 3 status
+        self.assertEqual(node_3._table.get_node(2), node_0._id)
+        self.assertEqual(node_3._table.get_node(3), node_0._id)
+        self.assertEqual(node_3.find_predecessor(node_3._id), node_0._id)
+        # test 3: join node 1 to the ring
+        node_1 = Node('1')
+        ms.add_node(node_1._id, node_1)
+        node_1.join(node_3._id)
+        self.assertEqual(node_0._table.get_node(1), node_1._id) # node 0 status
+        self.assertEqual(node_0._table.get_node(2), node_3._id)
+        self.assertEqual(node_0._table.get_node(3), node_0._id)
+        self.assertEqual(node_0.find_predecessor(node_0._id), node_3._id)
+        self.assertEqual(node_3._table.get_node(1), node_0._id) # node 3 status
+        self.assertEqual(node_3._table.get_node(2), node_0._id)
+        self.assertEqual(node_3._table.get_node(3), node_0._id)
+        self.assertEqual(node_3.find_predecessor(node_3._id), node_0._id)
+        self.assertEqual(node_1._table.get_node(1), node_3._id) # node 1 status
+        self.assertEqual(node_1._table.get_node(2), node_3._id)
+        self.assertEqual(node_1._table.get_node(3), node_0._id)
+        self.assertEqual(node_1.find_predecessor(node_1._id), node_0._id)
 
 if __name__ == '__main__':
     unittest.main()
