@@ -165,11 +165,11 @@ class TestChordNode(unittest.TestCase):
         self.assertEqual(node_3._table.get_node(1), node_0._id) # node 3 status
         self.assertEqual(node_3._table.get_node(2), node_0._id)
         self.assertEqual(node_3._table.get_node(3), node_0._id)
-        self.assertEqual(node_3.find_predecessor(node_3._id), node_0._id)
+        self.assertEqual(node_3.get_predecessor(), node_0._id)
         self.assertEqual(node_0._table.get_node(1), node_3._id) # node 0 status
         self.assertEqual(node_0._table.get_node(2), node_3._id)
         self.assertEqual(node_0._table.get_node(3), node_0._id)
-        self.assertEqual(node_0.find_predecessor(node_0._id), node_3._id)
+        self.assertEqual(node_0.get_predecessor(), node_3._id)
         # test 3: join node 1 to the ring
         node_1 = Node('1')
         ms.add_node(node_1._id, node_1)
@@ -177,15 +177,35 @@ class TestChordNode(unittest.TestCase):
         self.assertEqual(node_1._table.get_node(1), node_3._id) # node 1 status
         self.assertEqual(node_1._table.get_node(2), node_3._id)
         self.assertEqual(node_1._table.get_node(3), node_0._id)
-        self.assertEqual(node_1.find_predecessor(node_1._id), node_0._id)
+        self.assertEqual(node_1.get_predecessor(), node_0._id)
         self.assertEqual(node_3._table.get_node(1), node_0._id) # node 3 status
         self.assertEqual(node_3._table.get_node(2), node_0._id)
         self.assertEqual(node_3._table.get_node(3), node_0._id)
-        self.assertEqual(node_3.find_predecessor(node_3._id), node_0._id)
+        self.assertEqual(node_3.get_predecessor(), node_1._id)
         self.assertEqual(node_0._table.get_node(1), node_1._id) # node 0 status
         self.assertEqual(node_0._table.get_node(2), node_3._id)
         self.assertEqual(node_0._table.get_node(3), node_0._id)
-        self.assertEqual(node_0.find_predecessor(node_0._id), node_3._id)
+        self.assertEqual(node_0.get_predecessor(), node_3._id)
+        # test 4: join node 6 to the ring
+        node_6 = Node('6')
+        ms.add_node(node_6._id, node_6)
+        node_6.join(node_1._id)
+        self.assertEqual(node_6._table.get_node(1), node_0._id) # node 6 status
+        self.assertEqual(node_6._table.get_node(2), node_0._id)
+        self.assertEqual(node_6._table.get_node(3), node_3._id)
+        self.assertEqual(node_6.get_predecessor(), node_3._id)
+        self.assertEqual(node_1._table.get_node(1), node_3._id) # node 1 status
+        self.assertEqual(node_1._table.get_node(2), node_3._id)
+        self.assertEqual(node_1._table.get_node(3), node_6._id)
+        self.assertEqual(node_1.get_predecessor(), node_0._id)
+        self.assertEqual(node_3._table.get_node(1), node_6._id) # node 3 status
+        self.assertEqual(node_3._table.get_node(2), node_6._id)
+        self.assertEqual(node_3._table.get_node(3), node_0._id)
+        self.assertEqual(node_3.get_predecessor(), node_1._id)
+        self.assertEqual(node_0._table.get_node(1), node_1._id) # node 0 status
+        self.assertEqual(node_0._table.get_node(2), node_3._id)
+        self.assertEqual(node_0._table.get_node(3), node_6._id)
+        self.assertEqual(node_0.get_predecessor(), node_6._id)
 
 if __name__ == '__main__':
     unittest.main()
