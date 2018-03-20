@@ -56,7 +56,7 @@ class Node(object):
                         .format(self._id, identity))
         pred = self.find_predecessor(identity)
         succ = self.remote_get_successor(pred)
-        logger.debug('({}) found successor of {} is {}'
+        logger.debug('({}) found successor of {} -> {}'
                         .format(self._id, identity, succ))
         return succ
 
@@ -83,7 +83,7 @@ class Node(object):
                 break
             node = cpt
             succ = self.remote_get_successor(node)
-        logger.debug('({}) found predecessor of {} is {}'
+        logger.debug('({}) found predecessor of {} -> {}'
                         .format(self._id, identity, node))
         return node
 
@@ -323,7 +323,7 @@ class Node(object):
         r = requests.post(url, json=payload)
         pred = r.json()['id']
         assert(r.status_code==200)
-        logger.debug('({}) ask {} for its own predecessor is {}'
+        logger.debug('({}) ask {} for its own predecessor -> {}'
                         .format(self._id, remote_node, pred))
         return pred
 
@@ -374,7 +374,7 @@ class Node(object):
         r = requests.post(url, json=payload)
         assert(r.status_code==200)
         succ = r.json()['id']
-        logger.debug('({}) ask {} for its own successor is {}'
+        logger.debug('({}) ask {} for its own successor -> {}'
                         .format(self._id, remote_node, succ))
         return succ
 
@@ -401,7 +401,7 @@ class Node(object):
         r = requests.post(url, json=payload)
         assert(r.status_code==200)
         succ = r.json()['id']
-        logger.debug('({}) ask {} to find successor of {} is {}'
+        logger.debug('({}) ask {} to find successor of {} -> {}'
                         .format(self._id, remote_node, identity, succ))
         return succ
 
@@ -427,7 +427,7 @@ class Node(object):
         r = requests.post(url, json=payload)
         assert(r.status_code==200)
         cpt = r.json()['id']
-        logger.debug('({}) ask {} to find closest preceding finger of {} is {}'
+        logger.debug('({}) ask {} to find closest preceding finger of {} -> {}'
                         .format(self._id, remote_node, identity, cpt))
         return cpt
 
