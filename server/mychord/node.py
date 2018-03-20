@@ -160,7 +160,7 @@ class Node(object):
                     .format(self._id, i+1))
             start = self._table.get_start(i+1)
             fnode = self._table.get_node(i)
-            if self._in_range_ie(start, self._id, fnode):
+            if self._in_range_ei(start, self._id, fnode):       # mine: fix error finger entry
                 logger.debug(('({}) initializing finger table index {}, '
                         + 'same as previous one').format(self._id, i+1))
                 self._table.set_node(i+1, fnode)
