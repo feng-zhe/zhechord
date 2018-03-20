@@ -191,11 +191,13 @@ class Node(object):
             N/A
         '''
         logger.debug('({}) updating others'.format(self._id))
+        # mine: fix missing update issue
+        self.remote_update_finger_table(self._predecessor, self._id, 1)
         for i in range(1, ct.RING_SIZE_BIT+1):
             # find last node p whose ith finger MIGHT be n
             node = self._add(self._id, - ct.TWO_EXP[i-1])
             p = self.find_predecessor(node)
-            if p == self._id:       # fix update itself issue.
+            if p == self._id:       # mine: fix update itself issue.
                 continue
             self.remote_update_finger_table(p, self._id, i)
         logger.debug('({}) updated others'.format(self._id))
@@ -219,7 +221,7 @@ class Node(object):
         logger.debug('({}) try to update finger table, index {} with {}'
                         .format(self._id, i, s))
         fnode = self._table.get_node(i)
-        if self._id == fnode and s >= fnode:       # fix missing update issue
+        if self._id == fnode and s >= fnode:       # mine: fix missing update issue
             self._table.set_node(i, s)
             logger.debug('({}) updated finger table, index {} with {}'
                             .format(self._id, i, s))
