@@ -101,11 +101,15 @@ class Node(object):
         Raises:
             N/A
         '''
+        logger.debug('({}) finding CPT of {}'.format(self._id, identity))
         for i in range(ct.RING_SIZE_BIT, 0, -1):
             fnode = self._table.get_node(i)
-            start = helper._add(self._id, 1)
-            if self._in_range_ee(fnode, start, identity):
+            if self._in_range_ee(fnode, self._id, identity):
+                logger.debug('({}) finding CPT of {} -> {}'
+                        .format(self._id, identity, fnode))
                 return fnode
+        logger.debug('({}) finding CPT of {} -> failed, returning itself'
+                .format(self._id, identity))
         return self._id
 
     def join(self, remote_node=None):
@@ -228,9 +232,9 @@ class Node(object):
                             .format(self._id, i, s))
         elif self._in_range_ie(s, self._id, fnode):
             self._table.set_node(i, s)
-            self.remote_update_finger_table(self._predecessor, s, i)
             logger.debug('({}) updated finger table, index {} with {}'
                             .format(self._id, i, s))
+            self.remote_update_finger_table(self._predecessor, s, i)
         else:
             logger.debug('({}) not updated finger table, index {} with {}'
                             .format(self._id, i, s))
