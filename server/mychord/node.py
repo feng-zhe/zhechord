@@ -9,6 +9,7 @@ import logging
 import requests
 import mychord.finger_table as ft
 import mychord.constants as ct
+import mychord.helper as helper
 
 logger = logging.getLogger(__name__)
 
@@ -102,7 +103,7 @@ class Node(object):
         '''
         for i in range(ct.RING_SIZE_BIT, 0, -1):
             fnode = self._table.get_node(i)
-            start = self._add(self._id, 1)
+            start = helper._add(self._id, 1)
             if self._in_range_ee(fnode, start, identity):
                 return fnode
         return self._id
@@ -195,7 +196,7 @@ class Node(object):
         self.remote_update_finger_table(self._predecessor, self._id, 1)
         for i in range(1, ct.RING_SIZE_BIT+1):
             # find last node p whose ith finger MIGHT be n
-            node = self._add(self._id, - ct.TWO_EXP[i-1])
+            node = helper._add(self._id, - ct.TWO_EXP[i-1])
             p = self.find_predecessor(node)
             if p == self._id:       # mine: fix update itself issue.
                 continue
@@ -532,45 +533,6 @@ class Node(object):
         if e_int - s_int <= 1:      # empty set
             return False
         return s_int < n_int < e_int
-
-    def _format(self, value):
-        '''
-        Format the integer into fixed sized hex string.
-
-        Args:
-            value:  An integer value to be formated.
-
-        Returns:
-            N/A
-
-        Raises:
-            N/A
-        '''
-        length = ct.RING_SIZE_BIT // 4
-        if ct.RING_SIZE_BIT % 4 > 0:
-            length += 1
-        return format(value, '0{}x'.format(length))
-
-    def _add(self, identity, num):
-        '''
-        Add the identity by num. It handles neg values and results.
-
-        Args:
-            identity:   A hex string. The values to be added.
-            num:        An integer. The amount to add.
-
-        Returns:
-            A hex string as decreased value.
-
-        Raises:
-            N/A
-        '''
-        val = int(identity, 16) + num
-        if val < 0:
-            val += ct.TWO_EXP[ct.RING_SIZE_BIT]
-        elif val >= ct.TWO_EXP[ct.RING_SIZE_BIT]:
-            val %= ct.TWO_EXP[ct.RING_SIZE_BIT]
-        return self._format(val)
 
     # Advanced
     # def stablize(self):

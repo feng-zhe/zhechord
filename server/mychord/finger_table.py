@@ -2,6 +2,7 @@
 This file contains code for finger table implementation.
 '''
 import mychord.constants as ct
+import mychord.helper as helper
 
 class FingerTable(object):
     '''
@@ -126,5 +127,5 @@ class _FingerTableEntry(object):
         Raises:
             N/A
         '''
-        self.start = format((int(node_id, 16) + ct.TWO_EXP[i-1]) % ct.ID_MAX, 'x')
+        self.start = helper._add(node_id, ct.TWO_EXP[i-1])
         self.node = None
