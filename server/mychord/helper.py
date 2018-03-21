@@ -34,6 +34,7 @@ def _add(identity, num):
     '''
     val = int(identity, 16) + num
     if val < 0:
+        print(ct.TWO_EXP[ct.RING_SIZE_BIT])
         val += ct.TWO_EXP[ct.RING_SIZE_BIT]
     elif val >= ct.TWO_EXP[ct.RING_SIZE_BIT]:
         val %= ct.TWO_EXP[ct.RING_SIZE_BIT]

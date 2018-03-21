@@ -5,6 +5,25 @@ from mychord.finger_table import FingerTable
 
 class TestFingerTable(unittest.TestCase):
     
+    _default_size = 0
+
+    @classmethod
+    def setUpClass(cls):
+        '''
+        Set up chord ring size for this test.
+        '''
+        cls._default_size = ct.RING_SIZE_BIT
+        ct.RING_SIZE_BIT = 160
+        ct.init()
+
+    @classmethod
+    def tearDownClass(cls):
+        '''
+        Restore chord ring default size.
+        '''
+        ct.RING_SIZE_BIT = cls._default_size
+        ct.init()
+
     def test_index_size(self):
         m = hashlib.sha1()
         m.update(b'test1')

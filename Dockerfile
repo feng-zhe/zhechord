@@ -8,7 +8,7 @@ RUN apt-get update && \
     pip3 install pipenv
 ENV LC_ALL="C.UTF-8" LANG="C.UTF-8"
 COPY ./ /root/project/
-WORKDIR /root/project/server/mychord/
+WORKDIR /root/project/
 RUN pipenv install
 # use entrypoint so that we can pass arguements when starting containers
-ENTRYPOINT ["pipenv","run", "python", "server.py"]
+ENTRYPOINT ["pipenv","run", "python", "server/mychord/server.py"]

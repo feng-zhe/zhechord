@@ -12,6 +12,26 @@ class TestNode(unittest.TestCase):
     '''
     Test class for Node.py
     '''
+
+    _default_size = 0
+
+    @classmethod
+    def setUpClass(cls):
+        '''
+        Set up chord ring size for this test.
+        '''
+        cls._default_size = ct.RING_SIZE_BIT
+        ct.RING_SIZE_BIT = 160
+        ct.init()
+
+    @classmethod
+    def tearDownClass(cls):
+        '''
+        Restore chord ring default size.
+        '''
+        ct.RING_SIZE_BIT = cls._default_size
+        ct.init()
+
     def test_in_range_ie(self):
         '''
         test the [start, end)

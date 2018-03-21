@@ -16,11 +16,15 @@ class TestNodeCore(unittest.TestCase):
     '''
     Test class for Node.py
     '''
+
+    _default_size = 0
+
     @classmethod
     def setUpClass(cls):
         '''
         Change to smaller ring.
         '''
+        cls._default_size = ct.RING_SIZE_BIT
         ct.RING_SIZE_BIT = 3
         ct.init()
 
@@ -29,7 +33,7 @@ class TestNodeCore(unittest.TestCase):
         '''
         Restore longer ring.
         '''
-        ct.RING_SIZE_BIT = 160
+        ct.RING_SIZE_BIT = cls._default_size
         ct.init()
 
     @patch('requests.post')
