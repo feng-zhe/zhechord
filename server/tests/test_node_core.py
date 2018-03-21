@@ -37,7 +37,7 @@ class TestNodeCore(unittest.TestCase):
         ct.init()
 
     @patch('requests.post')
-    def test_join(self, post_mock):
+    def test_join_0_3_1_6(self, post_mock):
         '''
         Use the example in paper.
         '''
@@ -100,6 +100,71 @@ class TestNodeCore(unittest.TestCase):
         self.assertEqual(node_0._table.get_node(2), node_3._id)
         self.assertEqual(node_0._table.get_node(3), node_6._id)
         self.assertEqual(node_0.get_predecessor(), node_6._id)
+
+    @patch('requests.post')
+    def test_join_6_1_3_0(self, post_mock):
+        '''
+        Use the example in paper.
+        '''
+        # set up mock server
+        ms = MockServer()
+        post_mock.side_effect = lambda url, json : ms.post(url, json)
+        # test 1: node 6 creates a new ring
+        node_6 = Node('6')
+        ms.add_node(node_6._id, node_6)       # add this node to mocked server
+        node_6.join()
+        for i in range(1, ct.RING_SIZE_BIT+1):      # should point to itself
+            self.assertEqual(
+                    node_6._table.get_node(i), 
+                    node_6._id)
+        # test 2: join node 1 to then ring
+        node_1 = Node('1')
+        ms.add_node(node_1._id, node_1)
+        node_1.join(node_6._id)
+        self.assertEqual(node_1._table.get_node(1), node_6._id) # node 1 status
+        self.assertEqual(node_1._table.get_node(2), node_6._id)
+        self.assertEqual(node_1._table.get_node(3), node_6._id)
+        self.assertEqual(node_1.get_predecessor(), node_6._id)
+        self.assertEqual(node_6._table.get_node(1), node_1._id) # node 6 status
+        self.assertEqual(node_6._table.get_node(2), node_1._id)
+        self.assertEqual(node_6._table.get_node(3), node_6._id)
+        self.assertEqual(node_6.get_predecessor(), node_1._id)
+        # test 3: join node 3 to the ring
+        node_3 = Node('3')
+        ms.add_node(node_3._id, node_3)
+        node_3.join(node_1._id)
+        self.assertEqual(node_3._table.get_node(1), node_6._id) # node 3 status
+        self.assertEqual(node_3._table.get_node(2), node_6._id)
+        self.assertEqual(node_3._table.get_node(3), node_1._id)
+        self.assertEqual(node_3.get_predecessor(), node_1._id)
+        self.assertEqual(node_1._table.get_node(1), node_3._id) # node 1 status
+        self.assertEqual(node_1._table.get_node(2), node_3._id)
+        self.assertEqual(node_1._table.get_node(3), node_6._id)
+        self.assertEqual(node_1.get_predecessor(), node_6._id)
+        self.assertEqual(node_6._table.get_node(1), node_1._id) # node 6 status
+        self.assertEqual(node_6._table.get_node(2), node_1._id)
+        self.assertEqual(node_6._table.get_node(3), node_3._id)
+        self.assertEqual(node_6.get_predecessor(), node_3._id)
+        # test 4: join node 0 to the ring
+        node_0 = Node('0')
+        ms.add_node(node_0._id, node_0)
+        node_0.join(node_3._id)
+        self.assertEqual(node_0._table.get_node(1), node_1._id) # node 0 status
+        self.assertEqual(node_0._table.get_node(2), node_3._id)
+        self.assertEqual(node_0._table.get_node(3), node_6._id)
+        self.assertEqual(node_0.get_predecessor(), node_6._id)
+        self.assertEqual(node_3._table.get_node(1), node_6._id) # node 3 status
+        self.assertEqual(node_3._table.get_node(2), node_6._id)
+        self.assertEqual(node_3._table.get_node(3), node_0._id)
+        self.assertEqual(node_3.get_predecessor(), node_1._id)
+        self.assertEqual(node_1._table.get_node(1), node_3._id) # node 1 status
+        self.assertEqual(node_1._table.get_node(2), node_3._id)
+        self.assertEqual(node_1._table.get_node(3), node_6._id)
+        self.assertEqual(node_1.get_predecessor(), node_0._id)
+        self.assertEqual(node_6._table.get_node(1), node_0._id) # node 6 status
+        self.assertEqual(node_6._table.get_node(2), node_0._id)
+        self.assertEqual(node_6._table.get_node(3), node_3._id)
+        self.assertEqual(node_6.get_predecessor(), node_3._id)
 
     @patch('requests.post')
     def test_display_finger_table(self, post_mock):
