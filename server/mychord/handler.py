@@ -12,30 +12,30 @@ class ChordServerHandler(BaseHTTPRequestHandler):
         # dispatch requests
         if path == '/find_predecessor':
             pred = sv.g_node.find_predecessor(data['id'])
-            _response(200, { 'id': pred })
+            self._response(200, { 'id': pred })
         elif path == '/get_predecessor':
             pred = sv.g_node.get_predecessor()
-            _response(200, { 'id': pred})
+            self._response(200, { 'id': pred})
         elif path == '/set_predecessor':
             sv.g_node.set_predecessor(data['id'])
-            _response(200, {})
+            self._response(200, {})
         elif path == '/find_successor':
             succ = sv.g_node.find_successor(data['id'])
-            _response(200, { 'id': succ })
+            self._response(200, { 'id': succ })
         elif path == '/get_successor':
             succ = sv.g_node.get_successor()
-            _response(200, { 'id': succ})
+            self._response(200, { 'id': succ})
         elif path == '/closet_preceding_finger':
             cpf = sv.g_node.closet_preceding_finger(data['id'])
-            _response(200, { 'id': cpf })
+            self._response(200, { 'id': cpf })
         elif path == '/update_finger_table':
             sv.g_node.update_finger_table(data['s'], data['i'])
-            _response(200, {})
+            self._response(200, {})
         elif path == '/display_finger_table':
             ft = sv.g_node.display_finger_table()
-            _response(200, ft)
+            self._response(200, { 'result': ft})
         else:
-            _response(400, {})
+            self._response(400, {})
 
     def _response(self, code, data):
         self.send_response(code)

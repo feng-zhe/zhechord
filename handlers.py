@@ -1,6 +1,8 @@
 import hashlib
 import subprocess as sp
 import logging
+import requests
+import tabulate
 
 logger = logging.getLogger(__name__)
 
@@ -127,3 +129,23 @@ def clean_up(rm_img):
         logger.info('Removing image {}'.format(IMAGE_NAME))
         sp.run(cmd, shell=True, stdout=sp.PIPE, check=True)
         logger.info('Done')
+
+def local_finger_table():
+    '''
+    Send request to local node and get finger table information.
+
+    Args:
+        N/A
+
+    Returns:
+        N/A
+
+    Raises:
+        N/A
+    '''
+    r = requests.post('http://localhost:8000/display_finger_table', json={})
+    assert(r.status_code==200)
+    # format the output
+    ft = r.json()['result']
+    tbody = [[i, ft[i]] for i in range(1,len(ft))]
+    print(tabulate.tabulate(tbody, headers=['Index', 'Node']))

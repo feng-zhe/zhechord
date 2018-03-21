@@ -291,10 +291,7 @@ class Node(object):
             N/A
 
         Returns:
-            An object like:
-            {
-                'result': [None, xxx, xxx, xxx]
-            }
+            A array of  [None, xxx, xxx, xxx]
 
         Raises:
             N/A
