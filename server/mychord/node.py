@@ -80,7 +80,7 @@ class Node(object):
         succ = self._table.get_node(1)
         while not self._in_range_ei(identity, node, succ):
             cpt = self.remote_closest_preceding_finger(node, identity)
-            if cpt == node:     # fix infinite loop issue
+            if cpt == node:     # mine: fix infinite loop issue
                 break
             node = cpt
             succ = self.remote_get_successor(node)
@@ -204,7 +204,10 @@ class Node(object):
             p = self.find_predecessor(node)
             if p == self._id:       # mine: fix update itself issue.
                 continue
-            self.remote_update_finger_table(p, self._id, i)
+            if self.remote_get_successor(p) == node:        # mine: fix issue when 'node' is a node
+                self.remote_update_finger_table(node, self._id, i)
+            else:
+                self.remote_update_finger_table(p, self._id, i)
         logger.debug('({}) updated others'.format(self._id))
 
     def update_finger_table(self, s, i):
@@ -226,7 +229,8 @@ class Node(object):
         logger.debug('({}) try to update finger table, index {} with {}'
                         .format(self._id, i, s))
         fnode = self._table.get_node(i)
-        if self._id == fnode and s >= fnode:       # mine: fix missing update issue
+        if self._id == fnode and \
+                not self._in_range_ee(s, self._id, fnode):       # mine: fix missing update issue
             self._table.set_node(i, s)
             logger.debug('({}) updated finger table, index {} with {}'
                             .format(self._id, i, s))
@@ -511,8 +515,8 @@ class Node(object):
 
         Args:
             node:   The node to be tested.
-            start:  The range start, included.
-            end:    The range end, excluded.
+            start:  The range start, excluded.
+            end:    The range end, included.
 
         Returns:
             True if in range. False otherwise.
