@@ -38,8 +38,14 @@ def build_image():
     Raises:
         CalledProcessError
     '''
+    # remove old image
+    cmd = 'docker rmi {}'.format(IMAGE_NAME)
+    logger.info('Removing old image, name {}'.format(IMAGE_NAME))
+    sp.run(cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+    logger.info('Done')
+    # build new image
     cmd = 'docker build -t {} ./'.format(IMAGE_NAME)
-    logger.info('Build image, name {}'.format(IMAGE_NAME))
+    logger.info('Building image, name {}'.format(IMAGE_NAME))
     sp.run(cmd, shell=True, stdout=sp.PIPE, check=True)
     logger.info('Done')
 
@@ -76,7 +82,8 @@ def run_node(name):
     Raises:
         CalledProcessError
     '''
-    hname = _hash(name)
+    # hname = _hash(name)
+    hname = name        # use the name provided directly
     cmd = 'docker run --name {} -dit --network={} {}'.format(hname, NET_NAME, IMAGE_NAME)
     logger.info('Starting container with hashed name {}'.format(hname))
     sp.run(cmd, shell=True, stdout=sp.PIPE, check=True)
