@@ -31,6 +31,9 @@ class ChordServerHandler(BaseHTTPRequestHandler):
         elif path == '/update_finger_table':
             sv.g_node.update_finger_table(data['s'], data['i'])
             _response(200, {})
+        elif path == '/display_finger_table':
+            ft = sv.g_node.display_finger_table()
+            _response(200, ft)
         else:
             _response(400, {})
 

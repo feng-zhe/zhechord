@@ -101,5 +101,33 @@ class TestNodeCore(unittest.TestCase):
         self.assertEqual(node_0._table.get_node(3), node_6._id)
         self.assertEqual(node_0.get_predecessor(), node_6._id)
 
+    @patch('requests.post')
+    def test_display_finger_table(self, post_mock):
+        # set up mock server
+        ms = MockServer()
+        post_mock.side_effect = lambda url, json : ms.post(url, json)
+        # test:  joint 3 node
+        node_0 = Node('0')
+        ms.add_node(node_0._id, node_0)
+        node_0.join()
+        node_3 = Node('3')
+        ms.add_node(node_3._id, node_3)
+        node_3.join(node_0._id)
+        node_1 = Node('1')
+        ms.add_node(node_1._id, node_1)
+        node_1.join(node_3._id)
+        ft = node_0.display_finger_table()
+        self.assertEqual(ft[1], '1')
+        self.assertEqual(ft[2], '3')
+        self.assertEqual(ft[3], '0')
+        ft = node_3.display_finger_table()
+        self.assertEqual(ft[1], '0')
+        self.assertEqual(ft[2], '0')
+        self.assertEqual(ft[3], '0')
+        ft = node_1.display_finger_table()
+        self.assertEqual(ft[1], '3')
+        self.assertEqual(ft[2], '3')
+        self.assertEqual(ft[3], '0')
+
 if __name__ == '__main__':
     unittest.main()

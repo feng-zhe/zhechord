@@ -284,6 +284,27 @@ class Node(object):
         '''
         return self._table.get_node(1)
 
+    def display_finger_table(self):
+        '''
+        Return the finger table 
+        Args:
+            N/A
+
+        Returns:
+            An object like:
+            {
+                'result': [None, xxx, xxx, xxx]
+            }
+
+        Raises:
+            N/A
+        '''
+        result = [None]
+        for i in range(1, ct.RING_SIZE_BIT+1):
+            result.append(self._table.get_node(i))
+        return result
+
+    # remote part
     def remote_find_predecessor(self, remote_node, identity):
         '''
         Find the predecessor of the identity on remote node.

@@ -37,3 +37,8 @@ output: `{'id': xxxx}`
 #### POST
 input:  `{'s': xxxx, 'i': x}`
 output: `{}`
+
+### /display_finger_table
+#### POST
+input:  `{}`
+output: `{'result':[xx,xx,xx]}`

@@ -46,6 +46,9 @@ class MockServer(object):
             rsp = MockResponse(200, {'id': cpf})
         elif path == '/update_finger_table':
             self._nodes[node_id].update_finger_table(json['s'], json['i'])
+        elif path == '/display_finger_table':
+            ft = self._nodes[node_id].display_finger_table()
+            rsp = MockResponse(200, ft)
         else:
             rsp = MockResponse(400, {})
 
