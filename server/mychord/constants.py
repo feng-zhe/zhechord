@@ -2,7 +2,7 @@
 Constants for the project.
 '''
 
-CONTAINER_PREFIX = 'CR'
+CONTAINER_PREFIX = 'CR_'
 RING_SIZE_BIT = 5
 TWO_EXP = []  # the 2^i table, to speed up
 

@@ -3,7 +3,8 @@ The final report for ece 578 advance operating system.
 It is to implement the Chord Ring and test it with docker.
 
 ## Container Prefix
-Because docker containers must have names starting with alphabets. So The prefix will be 'CR' (chord ring).
+Because docker containers must have names starting with alphabets. So The prefix will be 'CR_' (chord ring).
+Prefix is normally used in requests. But internally, the id without prefix will be used.
 
 ## Web API
 ### /find_predecessor

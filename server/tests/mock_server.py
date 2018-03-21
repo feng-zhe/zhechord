@@ -22,7 +22,7 @@ class MockServer(object):
         '''
         # parse url
         pos = url.find(':', 5)
-        node_id = url[7:pos]
+        node_id = url[10:pos]
         pos = url.rfind('/')
         path = url[pos:]
         # dispatch

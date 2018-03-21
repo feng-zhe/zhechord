@@ -40,3 +40,17 @@ def _add(identity, num):
         val %= ct.TWO_EXP[ct.RING_SIZE_BIT]
     return _format(val)
 
+def _gen_id(identity):
+    '''
+    Generate the id based on input.
+
+    Args:
+        identity:   A hex string.
+
+    Returns:
+        N/A
+
+    Raises;
+        N/A
+    '''
+    return ct.CONTAINER_PREFIX + identity
