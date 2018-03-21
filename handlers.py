@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 IMAGE_NAME = 'fengzhe_chord'
 NET_NAME = 'mynet'
-CONTAINER_PREFIX = 'CR'
+CONTAINER_PREFIX = 'CR_'
 
 def _hash(name):
     '''
