@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 IMAGE_NAME = 'fengzhe_chord'
 NET_NAME = 'mynet'
-CONTAINER_PREFIX = 'CR_'
+CONTAINER_PREFIX = 'cr_'
 
 def _hash(name):
     '''
@@ -41,15 +41,28 @@ def build_image():
     Raises:
         CalledProcessError
     '''
-    # remove old image
-    cmd = 'docker rmi {}'.format(IMAGE_NAME)
-    logger.info('Removing old image, name {}'.format(IMAGE_NAME))
-    sp.run(cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+    # record the old image id, wish it can use cache
+    cmd = 'docker images'
+    logger.info('Finding old image id, name {}'.format(IMAGE_NAME))
+    proc= sp.run(cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+    old_image_id = ''
+    lines = proc.stdout.splitlines()
+    for line in lines[1:]:
+        words = line.split()
+        if words[0].decode('utf-8') == IMAGE_NAME:
+            old_image_id = words[2].decode('utf-8')
+            break
+    logger.info('Found it: {}'.format(old_image_id))
     logger.info('Done')
     # build new image
     cmd = 'docker build -t {} ./'.format(IMAGE_NAME)
     logger.info('Building image, name {}'.format(IMAGE_NAME))
     sp.run(cmd, shell=True, stdout=sp.PIPE, check=True)
+    logger.info('Done')
+    # remove old image
+    cmd = 'docker rmi {}'.format(old_image_id)
+    logger.info('Removing old image, id {}'.format(old_image_id))
+    sp.run(cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
     logger.info('Done')
 
 def create_network():
@@ -71,13 +84,13 @@ def create_network():
     sp.run(cmd, shell=True, stderr=sp.PIPE, stdout=sp.PIPE, check=False)
     logger.info('Network created');
 
-def run_node(name):
+def run_node(names):
     '''
     create a docker container from my chord image
 
     Args:
-        name: any name for the node. It will be hashed and
-            then used as the name for the container.
+        names: A list of node ids. The first one is id for this node.
+                The second one is the node already in the ring.
 
     Returns:
         N/A
@@ -86,10 +99,14 @@ def run_node(name):
         CalledProcessError
     '''
     # hname = _hash(name)
-    hname = name        # use the name provided directly
-    cmd = 'docker run --name {}{} -dit --network={} {}'\
-            .format(CONTAINER_PREFIX, hname, NET_NAME, IMAGE_NAME)
-    logger.info('Starting container with hashed name {}'.format(hname))
+    cname = CONTAINER_PREFIX + names[0]
+    if len(names) == 1:
+        cmd = 'docker run --name {} -dit --network={} {} {}'\
+                .format(cname, NET_NAME, IMAGE_NAME, names[0])
+    else:
+        cmd = 'docker run --name {} -dit --network={} {} {} {}'\
+                .format(cname, NET_NAME, IMAGE_NAME, names[0], names[1])
+    logger.info('Starting container with name {}'.format(cname))
     sp.run(cmd, shell=True, stdout=sp.PIPE, check=True)
     logger.info('Done')
 
