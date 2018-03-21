@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 
 IMAGE_NAME = 'fengzhe_chord'
 NET_NAME = 'mynet'
+CONTAINER_PREFIX = 'CR'
 
 def _hash(name):
     '''
@@ -86,7 +87,8 @@ def run_node(name):
     '''
     # hname = _hash(name)
     hname = name        # use the name provided directly
-    cmd = 'docker run --name {} -dit --network={} {}'.format(hname, NET_NAME, IMAGE_NAME)
+    cmd = 'docker run --name {}{} -dit --network={} {}'\
+            .format(CONTAINER_PREFIX, hname, NET_NAME, IMAGE_NAME)
     logger.info('Starting container with hashed name {}'.format(hname))
     sp.run(cmd, shell=True, stdout=sp.PIPE, check=True)
     logger.info('Done')

@@ -322,7 +322,7 @@ class Node(object):
             AssertionError
             KeyError
         '''
-        url = 'http://{}:8000/find_predecessor'.format(remote_node)
+        url = 'http://{}{}:8000/find_predecessor'.format(ct.CONTAINER_PREFIX, remote_node)
         payload = { 'id': identity }
         r = requests.post(url, json=payload)
         assert(r.status_code==200)
@@ -345,7 +345,7 @@ class Node(object):
         '''
         logger.debug('({}) ask {} for its own predecessor'
                         .format(self._id, remote_node))
-        url = 'http://{}:8000/get_predecessor'.format(remote_node)
+        url = 'http://{}{}:8000/get_predecessor'.format(ct.CONTAINER_PREFIX, remote_node)
         payload = {}
         r = requests.post(url, json=payload)
         pred = r.json()['id']
@@ -371,7 +371,7 @@ class Node(object):
         '''
         logger.debug('({}) ask {} to set its predecessor as {}'
                         .format(self._id, remote_node, identity))
-        url = 'http://{}:8000/set_predecessor'.format(remote_node)
+        url = 'http://{}{}:8000/set_predecessor'.format(ct.CONTAINER_PREFIX,remote_node)
         payload = { 'id': identity }
         r = requests.post(url, json=payload)
         assert(r.status_code==200)
@@ -396,7 +396,7 @@ class Node(object):
         '''
         logger.debug('({}) ask {} for its own successor'
                         .format(self._id, remote_node))
-        url = 'http://{}:8000/get_successor'.format(remote_node)
+        url = 'http://{}{}:8000/get_successor'.format(ct.CONTAINER_PREFIX, remote_node)
         payload = {}
         r = requests.post(url, json=payload)
         assert(r.status_code==200)
@@ -423,7 +423,7 @@ class Node(object):
         '''
         logger.debug('({}) ask {} to find successor of {}'
                         .format(self._id, remote_node, identity))
-        url = 'http://{}:8000/find_successor'.format(remote_node)
+        url = 'http://{}{}:8000/find_successor'.format(ct.CONTAINER_PREFIX, remote_node)
         payload = { 'id': identity }
         r = requests.post(url, json=payload)
         assert(r.status_code==200)
@@ -449,7 +449,7 @@ class Node(object):
         '''
         logger.debug('({}) ask {} to find closest preceding finger of {}'
                         .format(self._id, remote_node, identity))
-        url = 'http://{}:8000/closest_preceding_finger'.format(remote_node)
+        url = 'http://{}{}:8000/closest_preceding_finger'.format(ct.CONTAINER_PREFIX, remote_node)
         payload = { 'id': identity }
         r = requests.post(url, json=payload)
         assert(r.status_code==200)
@@ -476,7 +476,7 @@ class Node(object):
         '''
         logger.debug('({}) ask {} to update finger table with s={} i={}'
                         .format(self._id, remote_node, s, i))
-        url = 'http://{}:8000/update_finger_table'.format(remote_node)
+        url = 'http://{}{}:8000/update_finger_table'.format(ct.CONTAINER_PREFIX, remote_node)
         payload = { 's': s, 'i': i }
         r = requests.post(url, json=payload)
         assert(r.status_code==200)
