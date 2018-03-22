@@ -25,8 +25,8 @@ class ChordServerHandler(BaseHTTPRequestHandler):
         elif path == '/get_successor':
             succ = sv.g_node.get_successor()
             self._response(200, { 'id': succ})
-        elif path == '/closet_preceding_finger':
-            cpf = sv.g_node.closet_preceding_finger(data['id'])
+        elif path == '/closest_preceding_finger':
+            cpf = sv.g_node.closest_preceding_finger(data['id'])
             self._response(200, { 'id': cpf })
         elif path == '/update_finger_table':
             sv.g_node.update_finger_table(data['s'], data['i'])
