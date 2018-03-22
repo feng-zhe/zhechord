@@ -7,7 +7,7 @@ from http.server import HTTPServer
 import mychord.handler as handler
 import mychord.shared_values as sv
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 def run(server_class=HTTPServer, handler_class=handler.ChordServerHandler):
     server_address = ('', 8000)
