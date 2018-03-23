@@ -6,6 +6,7 @@ Reference:
 '''
 import hashlib
 import logging
+import random
 import requests
 import mychord.finger_table as ft
 import mychord.constants as ct
@@ -129,8 +130,9 @@ class Node(object):
         if remote_node:        # join a ring via node
             logger.debug('({}) join a ring via {}'
                     .format(self._id, remote_node))
-            self.init_finger_table(remote_node)
-            self.update_others()
+            self._predecessor = None
+            succ = self.remote_find_successor(remote_node, self._id)
+            self.set_successor(succ)
         else:       # the first one in the ring
             logger.debug('({}) create a new ring'.format(self._id))
             self._predecessor = self._id
@@ -150,8 +152,11 @@ class Node(object):
         Raises:
             N/A
         '''
-        # TODO
-        pass
+        x = self.remote_find_predecessor(self.get_successor())
+        if self._in_range_ee(x, self._id, self.get_successor()):
+            self.set_successor(x)
+        succ = self.get_successor()
+        self.remote_notify(succ, self._id)
 
     def notify(self, remote_node):
         '''
@@ -166,8 +171,12 @@ class Node(object):
         Raises:
             N/A
         '''
-        # TODO
-        pass
+        if self._predecessor == None or \
+                self._in_range_ee(
+                remote_node, 
+                self._predecessor, 
+                self._id):
+            self._predecessor = remote_node
 
     def fix_fingers(self):
         '''
@@ -182,8 +191,9 @@ class Node(object):
         Raises:
             N/A
         '''
-        # TODO
-        pass
+        i = random.randint(1, ct.RING_SIZE_BIT)
+        succ = self.find_successor(self._table.get_start(i))
+        self._table.set_node(i, succ)
 
     def get_predecessor(self):
         '''
@@ -229,6 +239,21 @@ class Node(object):
             N/A
         '''
         return self._table.get_node(1)
+
+    def set_successor(self, identity):
+        '''
+        Set the successor of this current node.
+
+        Args:
+            identity:   The new successor id.
+
+        Returns:
+            The id of the successor.
+
+        Raises:
+            N/A
+        '''
+        self._table.set_node(1, identity)
 
     def display_finger_table(self):
         '''
@@ -428,9 +453,18 @@ class Node(object):
             N/A
 
         Raises:
-            N/A
+            requests.exceptions.ConnectionError
+            AssertionError
         '''
-        pass
+        logger.debug('({}) notify {}'.format(self._id, remote_node))
+        if remote_node == self._id:     # if self, call self
+            self.notify(identity)
+        else:
+            url = 'http://{}{}:8000/notify'.format(ct.CONTAINER_PREFIX, remote_node)
+            payload = { 'id': identity }
+            requests.post(url, json=payload)
+            assert(r.status_code==200)
+        logger.debug('({}) notify {} -> Done!'.format(self._id, remote_node))
 
     def _in_range_ie(self, node, start, end):
         '''
