@@ -137,54 +137,9 @@ class Node(object):
             for i in range(1, ct.RING_SIZE_BIT+1):
                 self._table.set_node(i, self._id)
 
-    def init_finger_table(self, remote_node):
+    def stablize(self):
         '''
-        Initialize the calling node's finger table by the remote_node.
-
-        Args:
-            remote_node:    The remote node id.
-
-        Returns:
-            N/A
-
-        Raises:
-            N/A
-        '''
-        logger.debug('({}) initializing finger table'.format(self._id))
-        logger.debug('({}) initializing finger table index {}'
-                .format(self._id, 1))
-        succ = self.remote_find_successor(remote_node, 
-                                self._table.get_start(1))
-        self._table.set_node(1, succ)
-        logger.debug(('({}) initialized finger table index {} '
-                + 'with {}').format(self._id, 1, succ))
-        self._predecessor = self.remote_get_predecessor(succ)
-        self.remote_set_predecessor(succ, self._id)
-        for i in range(1, ct.RING_SIZE_BIT):
-            logger.debug('({}) initializing finger table index {}'
-                    .format(self._id, i+1))
-            start = self._table.get_start(i+1)
-            fnode = self._table.get_node(i)
-            if self._in_range_ei(start, self._id, fnode):       # mine: fix error finger entry
-                logger.debug(('({}) initializing finger table index {}, '
-                        + 'same as previous one').format(self._id, i+1))
-                self._table.set_node(i+1, fnode)
-                logger.debug(('({}) initialized finger table index {} '
-                        + 'with {}').format(self._id, i+1, fnode))
-            else:
-                logger.debug(('({}) initializing finger table index {}, '
-                        + 'not same as previous one').format(self._id, i+1))
-                remote_succ = self.remote_find_successor(remote_node, start)
-                self._table.set_node(i+1, remote_succ)
-                logger.debug(('({}) initialized finger table index {} '
-                        + 'with {}').format(self._id, i+1, remote_succ))
-        logger.debug('({}) initialized finger table'.format(self._id))
-            
-    def update_others(self):
-        '''
-        Update all nodes whose finger tables should refer to n
-
-        Based in paper description, it shouldn't update itself.
+        Periodically verify n’s immediate successor, and tell the successor about n
 
         Args:
             N/A
@@ -195,30 +150,15 @@ class Node(object):
         Raises:
             N/A
         '''
-        logger.debug('({}) updating others'.format(self._id))
-        # mine: fix missing update issue
-        self.remote_update_finger_table(self._predecessor, self._id, 1)
-        for i in range(1, ct.RING_SIZE_BIT+1):
-            # find last node p whose ith finger MIGHT be n
-            node = helper._add(self._id, - ct.TWO_EXP[i-1])
-            p = self.find_predecessor(node)
-            if p == self._id:       # mine: fix update itself issue.
-                continue
-            if self.remote_get_successor(p) == node:        # mine: fix issue when 'node' is a node
-                self.remote_update_finger_table(node, self._id, i)
-            else:
-                self.remote_update_finger_table(p, self._id, i)
-        logger.debug('({}) updated others'.format(self._id))
+        # TODO
+        pass
 
-    def update_finger_table(self, s, i):
+    def notify(self, remote_node):
         '''
-        If s is i^th finger of n, update n’s finger table with s
-        Original pseudocode has  missing update issue. 
-        And be aware of the definition of finger table.
+        The remote node thinks it might be our predecessor.
 
         Args:
-            s:  The new id.
-            i:  Finger table entry index.
+            remote_node:   the remote node notifying this node.
 
         Returns:
             N/A
@@ -226,22 +166,24 @@ class Node(object):
         Raises:
             N/A
         '''
-        logger.debug('({}) try to update finger table, index {} with {}'
-                        .format(self._id, i, s))
-        fnode = self._table.get_node(i)
-        if self._id == fnode and \
-                not self._in_range_ee(s, self._id, fnode):       # mine: fix missing update issue
-            self._table.set_node(i, s)
-            logger.debug('({}) updated finger table, index {} with {}'
-                            .format(self._id, i, s))
-        elif self._in_range_ie(s, self._id, fnode):
-            self._table.set_node(i, s)
-            logger.debug('({}) updated finger table, index {} with {}'
-                            .format(self._id, i, s))
-            self.remote_update_finger_table(self._predecessor, s, i)
-        else:
-            logger.debug('({}) not updated finger table, index {} with {}'
-                            .format(self._id, i, s))
+        # TODO
+        pass
+
+    def fix_fingers(self):
+        '''
+        Periodically refresh finger table entries.
+
+        Args:
+            N/A
+
+        Returns:
+            N/A
+
+        Raises:
+            N/A
+        '''
+        # TODO
+        pass
 
     def get_predecessor(self):
         '''
@@ -475,32 +417,20 @@ class Node(object):
                         .format(self._id, remote_node, identity, cpt))
         return cpt
 
-    def remote_update_finger_table(self, remote_node, s, i):
+    def remote_notify(self, remote_node, identity):
         '''
-        On remote node, if s is i^th finger of n, update n’s finger table with s.
-
+        Ask the remote node to run the notify with identity.
+        
         Args:
-            remote_node:    The remote node id.
-            s:  The new id.
-            i:  Finger table entry index.
+            identity:   The identity of the object.
 
         Returns:
             N/A
 
         Raises:
-            requests.exceptions.ConnectionError
-            AssertionError
+            N/A
         '''
-        logger.debug('({}) ask {} to update finger table with s={} i={}'
-                        .format(self._id, remote_node, s, i))
-        if remote_node == self._id:     # if self, call self
-            self.update_finger_table(s, i)
-        else:
-            url = 'http://{}{}:8000/update_finger_table'.format(ct.CONTAINER_PREFIX, remote_node)
-            payload = { 's': s, 'i': i }
-            r = requests.post(url, json=payload)
-            assert(r.status_code==200)
-        return
+        pass
 
     def _in_range_ie(self, node, start, end):
         '''
@@ -580,51 +510,3 @@ class Node(object):
             return False
         return s_int < n_int < e_int
 
-    # Advanced
-    # def stablize(self):
-        # '''
-        # Periodically verify n’s immediate successor, and tell the successor about n
-
-        # Args:
-            # N/A
-
-        # Returns:
-            # N/A
-
-        # Raises:
-            # N/A
-        # '''
-        # # TODO
-        # pass
-
-    # def notify(self, remote_node):
-        # '''
-        # The remote node thinks it might be our predecessor.
-
-        # Args:
-            # remote_node:   the remote node notifying this node.
-
-        # Returns:
-            # N/A
-
-        # Raises:
-            # N/A
-        # '''
-        # # TODO
-        # pass
-
-    # def fix_fingers(self):
-        # '''
-        # Periodically refresh finger table entries.
-
-        # Args:
-            # N/A
-
-        # Returns:
-            # N/A
-
-        # Raises:
-            # N/A
-        # '''
-        # # TODO
-        # pass

@@ -28,8 +28,8 @@ class ChordServerHandler(BaseHTTPRequestHandler):
         elif path == '/closest_preceding_finger':
             cpf = sv.g_node.closest_preceding_finger(data['id'])
             self._response(200, { 'id': cpf })
-        elif path == '/update_finger_table':
-            sv.g_node.update_finger_table(data['s'], data['i'])
+        elif path == '/notify':
+            sv.g_node.notify(data['id'])
             self._response(200, {})
         elif path == '/display_finger_table':
             ft = sv.g_node.display_finger_table()

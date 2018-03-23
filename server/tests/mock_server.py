@@ -44,8 +44,9 @@ class MockServer(object):
         elif path == '/closest_preceding_finger':
             cpf = self._nodes[node_id].closest_preceding_finger(json['id'])
             rsp = MockResponse(200, {'id': cpf})
-        elif path == '/update_finger_table':
-            self._nodes[node_id].update_finger_table(json['s'], json['i'])
+        elif path == '/notify':
+            self._nodes[node_id].notify(json['id'])
+            rsp = MockResponse(200, {})
         elif path == '/display_finger_table':
             ft = self._nodes[node_id].display_finger_table()
             rsp = MockResponse(200, ft)

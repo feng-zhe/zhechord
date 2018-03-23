@@ -41,9 +41,9 @@ output: `{'id': xxxx}`
 input:  `{'id': xxxx}`
 output: `{'id': xxxx}`
 
-### /update_finger_table
+### /notify
 #### POST
-input:  `{'s': xxxx, 'i': x}`
+input:  `{'id': xxxx}`
 output: `{}`
 
 ### /display_finger_table
