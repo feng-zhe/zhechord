@@ -118,8 +118,8 @@ class Node(object):
         Create/join a chord ring.
 
         Args:
-            remote_node:   The identity of the node which is already in the ring.
-                    If None, create a new ring.
+            remote_node:    The identity of the node which is already in the ring.
+                            If None, create a new ring.
 
         Returns:
             N/A
@@ -133,15 +133,23 @@ class Node(object):
             self._predecessor = None
             succ = self.remote_find_successor(remote_node, self._id)
             self.set_successor(succ)
-        else:       # the first one in the ring
+            # mine: check whether the remote node's successor is itself
+            # if so, it means this node is the init node and not initialized.
+            # Then we init it's successor as "seed" and it will self-correct them.
+            if remote_node == self.remote_get_successor(remote_node):
+                self.remote_set_successor(remote_node, self._id)
+            # end of mine
+        else:       # mine: the first one in the ring
             logger.debug('({}) create a new ring'.format(self._id))
-            self._predecessor = self._id
+            self._predecessor = None        # be consistent
             for i in range(1, ct.RING_SIZE_BIT+1):
                 self._table.set_node(i, self._id)
+            # end of mine
 
-    def stablize(self):
+    def stabilize(self):
         '''
         Periodically verify n’s immediate successor, and tell the successor about n
+        This function may change the successor and trigger notify().
 
         Args:
             N/A
@@ -152,15 +160,19 @@ class Node(object):
         Raises:
             N/A
         '''
-        x = self.remote_find_predecessor(self.get_successor())
+        logger.debug('({}) stablizing'.format(self._id))
+        succ = self.get_successor()
+        x = self.remote_get_predecessor(succ)
         if self._in_range_ee(x, self._id, self.get_successor()):
             self.set_successor(x)
         succ = self.get_successor()
         self.remote_notify(succ, self._id)
+        logger.debug('({}) stablizing -> Done'.format(self._id))
 
     def notify(self, remote_node):
         '''
         The remote node thinks it might be our predecessor.
+        This function only changes predecessor if ok.
 
         Args:
             remote_node:   the remote node notifying this node.
@@ -171,19 +183,28 @@ class Node(object):
         Raises:
             N/A
         '''
+        logger.debug('({}) notified by {}'
+                .format(self._id, remote_node))
         if self._predecessor == None or \
                 self._in_range_ee(
                 remote_node, 
                 self._predecessor, 
                 self._id):
             self._predecessor = remote_node
+            logger.debug('({0}) notified by {1} -> Done and changed predecesor to {1}'
+                    .format(self._id, remote_node))
+        else:
+            logger.debug('({}) notified by {} -> Done but not changed'
+                    .format(self._id, remote_node))
 
-    def fix_fingers(self):
+    def fix_fingers(self, loop=False):
         '''
         Periodically refresh finger table entries.
+        This function only changes the finger table.
 
         Args:
-            N/A
+            loop:   A boolean flag. If True, then loop.
+                    Otherwise, use random.
 
         Returns:
             N/A
@@ -191,9 +212,20 @@ class Node(object):
         Raises:
             N/A
         '''
-        i = random.randint(1, ct.RING_SIZE_BIT)
-        succ = self.find_successor(self._table.get_start(i))
-        self._table.set_node(i, succ)
+        logger.debug('({}) fixing finger table'.format(self._id))
+        if loop:
+            for i in range(1, ct.RING_SIZE_BIT+1):
+                succ = self.find_successor(self._table.get_start(i))
+                self._table.set_node(i, succ)
+                logger.debug('({}) set finger index {} with node {}'
+                        .format(self._id, i, succ))
+        else:
+            i = random.randint(1, ct.RING_SIZE_BIT)
+            succ = self.find_successor(self._table.get_start(i))
+            self._table.set_node(i, succ)
+            logger.debug('({}) set finger index {} with node {}'
+                    .format(self._id, i, succ))
+        logger.debug('({}) fixing finger table -> Done'.format(self._id))
 
     def get_predecessor(self):
         '''
@@ -335,7 +367,7 @@ class Node(object):
             identity:       The new predecessor identity.
 
         Returns:
-            The id of the predecessor.
+            N/A
 
         Raises:
             requests.exceptions.ConnectionError
@@ -382,6 +414,34 @@ class Node(object):
         logger.debug('({}) ask {} for its own successor -> {}'
                         .format(self._id, remote_node, succ))
         return succ
+
+    def remote_set_successor(self, remote_node, identity):
+        '''
+        Set the successor of the remote_node.
+
+        Args:
+            remote_node:    The remote node id.
+            identity:       The new successor identity.
+
+        Returns:
+            N/A
+
+        Raises:
+            requests.exceptions.ConnectionError
+            AssertionError
+        '''
+        logger.debug('({}) ask {} to set its successor as {}'
+                        .format(self._id, remote_node, identity))
+        if remote_node == self._id:     # if self, call self
+            self.set_successor(identity)
+        else:
+            url = 'http://{}{}:8000/set_successor'.format(ct.CONTAINER_PREFIX, remote_node)
+            payload = { 'id': identity }
+            r = requests.post(url, json=payload)
+            assert(r.status_code==200)
+        logger.debug('({}) ask {} to set its successor as {} is done'
+                        .format(self._id, remote_node, identity))
+        return
 
     def remote_find_successor(self, remote_node, identity):
         '''
@@ -462,7 +522,7 @@ class Node(object):
         else:
             url = 'http://{}{}:8000/notify'.format(ct.CONTAINER_PREFIX, remote_node)
             payload = { 'id': identity }
-            requests.post(url, json=payload)
+            r = requests.post(url, json=payload)
             assert(r.status_code==200)
         logger.debug('({}) notify {} -> Done!'.format(self._id, remote_node))
 
@@ -482,6 +542,8 @@ class Node(object):
         Raises:
             N/A
         '''
+        if not node or not start or not end:
+            return False
         n_int = int(node, 16)
         s_int = int(start, 16)
         e_int = int(end, 16)
@@ -508,6 +570,8 @@ class Node(object):
         Raises:
             N/A
         '''
+        if not node or not start or not end:
+            return False
         n_int = int(node, 16)
         s_int = int(start, 16)
         e_int = int(end, 16)
@@ -534,6 +598,8 @@ class Node(object):
         Raises:
             N/A
         '''
+        if not node or not start or not end:
+            return False
         n_int = int(node, 16)
         s_int = int(start, 16)
         e_int = int(end, 16)

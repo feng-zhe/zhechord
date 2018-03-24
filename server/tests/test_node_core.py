@@ -56,6 +56,8 @@ class TestNodeCore(unittest.TestCase):
         node_3 = Node('3')
         ms.add_node(node_3._id, node_3)
         node_3.join(node_0._id)
+        for i in range(0, 10):      # imitate the periodic operations
+            ms.period()
         self.assertEqual(node_3._table.get_node(1), node_0._id) # node 3 status
         self.assertEqual(node_3._table.get_node(2), node_0._id)
         self.assertEqual(node_3._table.get_node(3), node_0._id)
@@ -68,6 +70,8 @@ class TestNodeCore(unittest.TestCase):
         node_1 = Node('1')
         ms.add_node(node_1._id, node_1)
         node_1.join(node_3._id)
+        for i in range(0, 10):      # imitate the periodic operations
+            ms.period()
         self.assertEqual(node_1._table.get_node(1), node_3._id) # node 1 status
         self.assertEqual(node_1._table.get_node(2), node_3._id)
         self.assertEqual(node_1._table.get_node(3), node_0._id)
@@ -84,6 +88,8 @@ class TestNodeCore(unittest.TestCase):
         node_6 = Node('6')
         ms.add_node(node_6._id, node_6)
         node_6.join(node_1._id)
+        for i in range(0, 10):      # imitate the periodic operations
+            ms.period()
         self.assertEqual(node_6._table.get_node(1), node_0._id) # node 6 status
         self.assertEqual(node_6._table.get_node(2), node_0._id)
         self.assertEqual(node_6._table.get_node(3), node_3._id)
@@ -121,6 +127,8 @@ class TestNodeCore(unittest.TestCase):
         node_1 = Node('1')
         ms.add_node(node_1._id, node_1)
         node_1.join(node_6._id)
+        for i in range(0, 10):      # imitate the periodic operations
+            ms.period()
         self.assertEqual(node_1._table.get_node(1), node_6._id) # node 1 status
         self.assertEqual(node_1._table.get_node(2), node_6._id)
         self.assertEqual(node_1._table.get_node(3), node_6._id)
@@ -133,6 +141,8 @@ class TestNodeCore(unittest.TestCase):
         node_3 = Node('3')
         ms.add_node(node_3._id, node_3)
         node_3.join(node_1._id)
+        for i in range(0, 10):      # imitate the periodic operations
+            ms.period()
         self.assertEqual(node_3._table.get_node(1), node_6._id) # node 3 status
         self.assertEqual(node_3._table.get_node(2), node_6._id)
         self.assertEqual(node_3._table.get_node(3), node_1._id)
@@ -149,6 +159,8 @@ class TestNodeCore(unittest.TestCase):
         node_0 = Node('0')
         ms.add_node(node_0._id, node_0)
         node_0.join(node_3._id)
+        for i in range(0, 10):      # imitate the periodic operations
+            ms.period()
         self.assertEqual(node_0._table.get_node(1), node_1._id) # node 0 status
         self.assertEqual(node_0._table.get_node(2), node_3._id)
         self.assertEqual(node_0._table.get_node(3), node_6._id)
@@ -171,16 +183,20 @@ class TestNodeCore(unittest.TestCase):
         # set up mock server
         ms = MockServer()
         post_mock.side_effect = lambda url, json : ms.post(url, json)
-        # test:  joint 3 node
+        # test:  join 3 node
         node_0 = Node('0')
         ms.add_node(node_0._id, node_0)
         node_0.join()
         node_3 = Node('3')
         ms.add_node(node_3._id, node_3)
         node_3.join(node_0._id)
+        for i in range(0, 10):
+            ms.period()
         node_1 = Node('1')
         ms.add_node(node_1._id, node_1)
         node_1.join(node_3._id)
+        for i in range(0, 10):
+            ms.period()
         ft = node_0.display_finger_table()
         self.assertEqual(ft[1], '1')
         self.assertEqual(ft[2], '3')

@@ -41,6 +41,8 @@ class MockServer(object):
         elif path == '/get_successor':
             succ = self._nodes[node_id].get_successor()
             rsp = MockResponse(200, {'id': succ})
+        elif path == '/set_successor':
+            self._nodes[node_id].set_successor(json['id'])
         elif path == '/closest_preceding_finger':
             cpf = self._nodes[node_id].closest_preceding_finger(json['id'])
             rsp = MockResponse(200, {'id': cpf})
@@ -54,6 +56,23 @@ class MockServer(object):
             rsp = MockResponse(400, {})
 
         return rsp
+
+    def period(self):
+        '''
+        Imitate the periodic operations on each node.
+
+        Args:
+            N/A
+
+        Returns:
+            N/A
+
+        Raises:
+            N/A
+        '''
+        for node in self._nodes.values():
+            node.stabilize()
+            node.fix_fingers(True)      # use loop for testing purpose
 
 class MockResponse(object):
     
