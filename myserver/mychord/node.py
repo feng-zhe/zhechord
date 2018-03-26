@@ -4,7 +4,6 @@ Reference:
 [1] https://en.wikipedia.org/wiki/Chord_(peer-to-peer)
 [2] paper by Ion Stoica*
 '''
-import hashlib
 import logging
 import random
 import requests
@@ -320,12 +319,16 @@ class Node(object):
         Raises:
             N/A
         '''
+        logger.debug('({}) put key {} value {}'\
+                        .format(self._id, key, value))
         key_id = helper._hash(key)
         succ = self.find_successor(key_id)
         if succ == self._id:
             self._data[key] = value
         else:
             self.remote_put(succ, key, value)
+        logger.debug('({}) put key {} value {} -> Done'\
+                        .format(self._id, key, value))
 
     def get(self, key):
         '''
@@ -341,12 +344,18 @@ class Node(object):
         Raises:
             N/A
         '''
+        logger.debug('({}) get key {}'\
+                        .format(self._id, key))
         key_id = helper._hash(key)
         succ = self.find_successor(key_id)
+        value = None
         if succ == self._id:
-            return self._data.get(key)
+            value = self._data.get(key)
         else:
-            return self.remote_get(succ, key)
+            value = self.remote_get(succ, key)
+        logger.debug('({}) get key {} -> {}'\
+                        .format(self._id, key, value))
+        return value
     #-------------------------------------- end of local part --------------------------------------
 
     #-------------------------------------- start of remote part --------------------------------------
@@ -626,7 +635,7 @@ class Node(object):
         logger.debug('({}) ask {} to get key {}'\
                 .format(self._id, remote_node, key))
         if remote_node == self._id:     # if self, call self
-            self.get(key)
+            value = self.get(key)
         else:
             url = 'http://{}:8000/get'.format(helper._gen_net_id(remote_node))
             payload = { 'key': key }
@@ -635,6 +644,7 @@ class Node(object):
             value = r.json()['value']
         logger.debug('({}) ask {} to get key {} -> value {}'\
                 .format(self._id, remote_node, key, value))
+        return value
     #-------------------------------------- end of remote part --------------------------------------
 
     #-------------------------------------- start of internal part --------------------------------------

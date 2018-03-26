@@ -210,5 +210,32 @@ class TestNodeCore(unittest.TestCase):
         self.assertEqual(ft[2], '3')
         self.assertEqual(ft[3], '0')
 
+    @patch('requests.post')
+    def test_put_get(self, post_mock):
+        # set up mock server
+        ms = MockServer()
+        post_mock.side_effect = lambda url, json : ms.post(url, json)
+        # create nodes
+        logging.disable(logging.DEBUG)      # disable logging
+        node_0 = Node('0')
+        ms.add_node(node_0._id, node_0)
+        node_0.join()
+        node_3 = Node('3')
+        ms.add_node(node_3._id, node_3)
+        node_3.join(node_0._id)
+        for i in range(0, 10):
+            ms.period()
+        node_1 = Node('1')
+        ms.add_node(node_1._id, node_1)
+        node_1.join(node_3._id)
+        for i in range(0, 10):
+            ms.period()
+        logging.disable(logging.NOTSET)      # disable logging
+        # put&get key-value
+        node_0.put('hello', 'world')
+        self.assertEqual(node_0.get('hello'), 'world')
+        self.assertEqual(node_3.get('hello'), 'world')
+        self.assertEqual(node_1.get('hello'), 'world')
+
 if __name__ == '__main__':
     unittest.main()
