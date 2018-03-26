@@ -55,3 +55,13 @@ output: `{}`
 #### POST
 input:  `{}`
 output: `{'result':[xx,xx,xx]}`
+
+### /put
+#### POST
+input:  `{'key': xxx, 'value':xxx}`
+output: `{}`
+
+### /get
+#### POST
+input:  `{'key': xxx}`
+output: `{'value':xxx}`

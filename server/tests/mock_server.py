@@ -52,6 +52,12 @@ class MockServer(object):
         elif path == '/display_finger_table':
             ft = self._nodes[node_id].display_finger_table()
             rsp = MockResponse(200, ft)
+        elif path == '/put':
+            self._nodes[node_id].put(json['key'], json['value'])
+            rsp = MockResponse(200, {})
+        elif path == '/get':
+            value = self._nodes[node_id].get(json['key'])
+            rsp = MockResponse(200, {'value': value})
         else:
             rsp = MockResponse(400, {})
 

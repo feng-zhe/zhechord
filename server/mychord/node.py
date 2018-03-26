@@ -39,8 +39,10 @@ class Node(object):
         '''
         self._id = identity
         self._predecessor = None
-        self._table = ft.FingerTable(identity)
+        self._table = ft.FingerTable(identity) # finger table
+        self._data = {}                        # key-value store
 
+    #-------------------------------------- start of local part --------------------------------------
     def find_successor(self, identity):
         '''
         Ask this node to find the successor of the identity.
@@ -304,7 +306,39 @@ class Node(object):
             result.append(self._table.get_node(i))
         return result
 
-    # remote part
+    def put(self, key, value):
+        '''
+        Put the key-value into the ring.
+
+        Args:
+            key:    The key of the key-value pair.
+            value:  The value of key-value pair.
+
+        Returns:
+            N/A
+
+        Raises:
+            N/A
+        '''
+        pass
+
+    def get(self, key):
+        '''
+        Put the key into the ring.
+
+        Args:
+            key:    The key of the key-value pair.
+
+        Returns:
+            The value of the key-value pair.
+
+        Raises:
+            N/A
+        '''
+        pass
+    #-------------------------------------- end of local part --------------------------------------
+
+    #-------------------------------------- start of remote part --------------------------------------
     def remote_find_predecessor(self, remote_node, identity):
         '''
         Find the predecessor of the identity on remote node.
@@ -526,6 +560,41 @@ class Node(object):
             assert(r.status_code==200)
         logger.debug('({}) notify {} -> Done!'.format(self._id, remote_node))
 
+    def remote_put(self, remote_node, key, value):
+        '''
+        Ask the remote node to put the key.
+
+        Args:
+            remote_node:    The remote node identity.
+            key:    The key.
+            value:  The value.
+
+        Returns:
+            N/A
+
+        Raises:
+            N/A
+        '''
+        pass
+
+    def remote_get(self, remote_node, key):
+        '''
+        Ask the remote node to get the value for the key.
+        
+        Args:
+            remote_node:    The identity of the remote node.
+            key:    The key of the key-value pair.
+
+        Returns:
+            The value of the key-value pair.
+
+        Raises:
+            N/A
+        '''
+        pass
+    #-------------------------------------- end of remote part --------------------------------------
+
+    #-------------------------------------- start of internal part --------------------------------------
     def _in_range_ie(self, node, start, end):
         '''
         Test whether the node is in [start, end). It will handle the wrap around problem.
@@ -609,4 +678,4 @@ class Node(object):
         if e_int - s_int <= 1:      # empty set
             return False
         return s_int < n_int < e_int
-
+    #-------------------------------------- end of internal part --------------------------------------
