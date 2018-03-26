@@ -512,6 +512,7 @@ class Node(object):
         Ask the remote node to return the closest finger preceding id.
 
         Args:
+            remote_node:    The remote node identity.
             identity:   The identity of the object.
 
         Returns:
@@ -541,6 +542,7 @@ class Node(object):
         Ask the remote node to run the notify with identity.
         
         Args:
+            remote_node:    The identity of the remote node.
             identity:   The identity of the object.
 
         Returns:
@@ -678,4 +680,22 @@ class Node(object):
         if e_int - s_int <= 1:      # empty set
             return False
         return s_int < n_int < e_int
+
+    def _hash(self, name):
+        '''
+        Calculate the identity of the name on the ring, by hashing.
+
+        Args:
+            name:   A string to be hashed.
+            
+        Returns:
+            The identity for the key.
+
+        Raises:
+            N/A
+        '''
+        m = hashlib.sha1()
+        m.update(name.encode('utf-8'))
+        h = m.hexdigest()
+        return h
     #-------------------------------------- end of internal part --------------------------------------

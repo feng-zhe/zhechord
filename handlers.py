@@ -10,23 +10,23 @@ IMAGE_NAME = 'fengzhe_chord'
 NET_NAME = 'mynet'
 CONTAINER_PREFIX = 'cr_'
 
-def _hash(name):
-    '''
-    Hash the name
+# def _hash(name):
+    # '''
+    # Hash the name
 
-    Args:
-        name:   a string to be hashed
+    # Args:
+        # name:   a string to be hashed
         
-    Returns:
-        The hashed name.
+    # Returns:
+        # The hashed name.
 
-    Raises:
-        N/A
-    '''
-    m = hashlib.sha1()
-    m.update(name.encode('utf-8'))
-    h = m.hexdigest()
-    return h
+    # Raises:
+        # N/A
+    # '''
+    # m = hashlib.sha1()
+    # m.update(name.encode('utf-8'))
+    # h = m.hexdigest()
+    # return h
 
 def build_image():
     '''

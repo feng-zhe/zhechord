@@ -7,13 +7,16 @@ The branch basic is freezed and only for bug fix. Based on teacher's feedback, i
 The branch master is the active branch and contains advanced functions.
 
 ## TODO
-- let advanced chord ring pass tests
 - put(key) and get(key)
 - duplication for fault tolerance.
 
 ## Container Prefix
 Because docker containers must have names starting with alphabets. So The prefix will be 'CR_' (chord ring).
 Prefix is normally used in requests. But internally, the id without prefix will be used.
+
+## Identity, Key
+Identity is the position on the ring. While the key is the 'key' in key-value pair.
+When putting the key and value, the key will first be hashed and get the identity for the key. And this identity will be used to locate the node which contains the key. So as getting.
 
 ## Web API
 ### /find_predecessor
