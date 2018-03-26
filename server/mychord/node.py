@@ -697,5 +697,6 @@ class Node(object):
         m = hashlib.sha1()
         m.update(name.encode('utf-8'))
         h = m.hexdigest()
-        return h
+        v = int(h, 16) % ct.TWO_EXP[ct.RING_SIZE_BIT]
+        return helper._format(v)
     #-------------------------------------- end of internal part --------------------------------------
