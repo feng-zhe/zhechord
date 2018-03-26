@@ -31,5 +31,10 @@ class TestHelper(unittest.TestCase):
         h = helper._add('0000000000000000000000000000000000000000', -1)
         self.assertEqual(h, 'ffffffffffffffffffffffffffffffffffffffff')
 
+    def test_gen_net_id(self):
+        test_id = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+        net_id = helper._gen_net_id(test_id)
+        self.assertEqual(net_id, ct.CONTAINER_PREFIX + test_id)
+
 if __name__ == '__main__':
     unittest.main()
