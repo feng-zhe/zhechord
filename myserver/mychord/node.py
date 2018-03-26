@@ -368,7 +368,8 @@ class Node(object):
         '''
         if remote_node == self._id:     # if self, call self
             return self.find_predecessor(identity)
-        url = 'http://{}{}:8000/find_predecessor'.format(ct.CONTAINER_PREFIX, remote_node)
+        url = 'http://{}:8000/find_predecessor'\
+                .format(helper._gen_net_id(remote_node))
         payload = { 'id': identity }
         r = requests.post(url, json=payload)
         assert(r.status_code==200)
@@ -394,7 +395,8 @@ class Node(object):
         if remote_node == self._id:     # if self, call self
             pred =  self.get_predecessor()
         else:
-            url = 'http://{}{}:8000/get_predecessor'.format(ct.CONTAINER_PREFIX, remote_node)
+            url = 'http://{}:8000/get_predecessor'\
+                    .format(helper._gen_net_id(remote_node))
             payload = {}
             r = requests.post(url, json=payload)
             pred = r.json()['id']
@@ -423,7 +425,8 @@ class Node(object):
         if remote_node == self._id:     # if self, call self
             self.set_predecessor(identity)
         else:
-            url = 'http://{}{}:8000/set_predecessor'.format(ct.CONTAINER_PREFIX,remote_node)
+            url = 'http://{}:8000/set_predecessor'\
+                    .format(helper._gen_net_id(emote_node))
             payload = { 'id': identity }
             r = requests.post(url, json=payload)
             assert(r.status_code==200)
@@ -451,7 +454,8 @@ class Node(object):
         if remote_node == self._id:     # if self, call self
             succ = self.get_successor()
         else:
-            url = 'http://{}{}:8000/get_successor'.format(ct.CONTAINER_PREFIX, remote_node)
+            url = 'http://{}:8000/get_successor'\
+                    .format(helper._gen_net_id(remote_node))
             payload = {}
             r = requests.post(url, json=payload)
             assert(r.status_code==200)
@@ -480,7 +484,8 @@ class Node(object):
         if remote_node == self._id:     # if self, call self
             self.set_successor(identity)
         else:
-            url = 'http://{}{}:8000/set_successor'.format(ct.CONTAINER_PREFIX, remote_node)
+            url = 'http://{}:8000/set_successor'\
+                    .format(helper._gen_net_id(remote_node))
             payload = { 'id': identity }
             r = requests.post(url, json=payload)
             assert(r.status_code==200)
@@ -509,7 +514,8 @@ class Node(object):
         if remote_node == self._id:     # if self, call self
             succ = self.find_successor(identity)
         else:
-            url = 'http://{}{}:8000/find_successor'.format(ct.CONTAINER_PREFIX, remote_node)
+            url = 'http://{}:8000/find_successor'\
+                    .format(helper._gen_net_id(remote_node))
             payload = { 'id': identity }
             r = requests.post(url, json=payload)
             assert(r.status_code==200)
@@ -539,7 +545,8 @@ class Node(object):
         if remote_node == self._id:     # if self, call self
             cpt = self.closest_preceding_finger(identity)
         else:
-            url = 'http://{}{}:8000/closest_preceding_finger'.format(ct.CONTAINER_PREFIX, remote_node)
+            url = 'http://{}:8000/closest_preceding_finger'\
+                    .format(helper._gen_net_id(remote_node))
             payload = { 'id': identity }
             r = requests.post(url, json=payload)
             assert(r.status_code==200)
@@ -567,7 +574,8 @@ class Node(object):
         if remote_node == self._id:     # if self, call self
             self.notify(identity)
         else:
-            url = 'http://{}{}:8000/notify'.format(ct.CONTAINER_PREFIX, remote_node)
+            url = 'http://{}:8000/notify'\
+                    .format(helper._gen_net_id(remote_node))
             payload = { 'id': identity }
             r = requests.post(url, json=payload)
             assert(r.status_code==200)
@@ -593,7 +601,8 @@ class Node(object):
         if remote_node == self._id:     # if self, call self
             self.put(key, value)
         else:
-            url = 'http://{}{}:8000/put'.format(ct.CONTAINER_PREFIX, remote_node)
+            url = 'http://{}:8000/put'\
+                    .format(helper._gen_net_id(remote_node))
             payload = { 'key': key, 'value': value }
             r = requests.post(url, json=payload)
             assert(r.status_code==200)
@@ -619,7 +628,7 @@ class Node(object):
         if remote_node == self._id:     # if self, call self
             self.get(key)
         else:
-            url = 'http://{}{}:8000/get'.format(ct.CONTAINER_PREFIX, remote_node)
+            url = 'http://{}:8000/get'.format(helper._gen_net_id(remote_node))
             payload = { 'key': key }
             r = requests.post(url, json=payload)
             assert(r.status_code==200)

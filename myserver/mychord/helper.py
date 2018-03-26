@@ -40,20 +40,20 @@ def _add(identity, num):
         val %= ct.TWO_EXP[ct.RING_SIZE_BIT]
     return _format(val)
 
-def _gen_id(identity):
+def _gen_net_id(node_id):
     '''
-    Generate the id based on input.
+    Generate the network id for the node.
 
     Args:
-        identity:   A hex string.
+        node_id:   The identity of the node.
 
     Returns:
-        The identity for the key.
+        The network id for the node.
 
     Raises:
         N/A
     '''
-    return ct.CONTAINER_PREFIX + identity
+    return ct.CONTAINER_PREFIX + node_id
 
 def _hash(name):
     '''

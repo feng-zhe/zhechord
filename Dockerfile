@@ -15,4 +15,4 @@ WORKDIR /root/project/
 RUN pip3 install pipenv && \
     pipenv install
 # use entrypoint so that we can pass arguements when starting containers
-ENTRYPOINT ["pipenv","run", "python", "server/main.py"]
+ENTRYPOINT ["pipenv","run", "python", "myserver/main.py"]
