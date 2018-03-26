@@ -320,7 +320,12 @@ class Node(object):
         Raises:
             N/A
         '''
-        pass
+        key_id = helper._hash(key)
+        succ = self.find_successor(key_id)
+        if succ == self._id:
+            self._data[key] = value
+        else:
+            self.remote_put(succ, key, value)
 
     def get(self, key):
         '''
@@ -331,11 +336,17 @@ class Node(object):
 
         Returns:
             The value of the key-value pair.
+            If there isn't, return None.
 
         Raises:
             N/A
         '''
-        pass
+        key_id = helper._hash(key)
+        succ = self.find_successor(key_id)
+        if succ == self._id:
+            return self._data.get(key)
+        else:
+            return self.remote_get(succ, key)
     #-------------------------------------- end of local part --------------------------------------
 
     #-------------------------------------- start of remote part --------------------------------------
@@ -577,7 +588,17 @@ class Node(object):
         Raises:
             N/A
         '''
-        pass
+        logger.debug('({}) ask {} to put key {} value {}'\
+                .format(self._id, remote_node, key, value))
+        if remote_node == self._id:     # if self, call self
+            self.put(key, value)
+        else:
+            url = 'http://{}{}:8000/put'.format(ct.CONTAINER_PREFIX, remote_node)
+            payload = { 'key': key, 'value': value }
+            r = requests.post(url, json=payload)
+            assert(r.status_code==200)
+        logger.debug('({}) ask {} to put key {} value {} -> Done'\
+                .format(self._id, remote_node, key, value))
 
     def remote_get(self, remote_node, key):
         '''
@@ -593,7 +614,18 @@ class Node(object):
         Raises:
             N/A
         '''
-        pass
+        logger.debug('({}) ask {} to get key {}'\
+                .format(self._id, remote_node, key))
+        if remote_node == self._id:     # if self, call self
+            self.get(key)
+        else:
+            url = 'http://{}{}:8000/get'.format(ct.CONTAINER_PREFIX, remote_node)
+            payload = { 'key': key }
+            r = requests.post(url, json=payload)
+            assert(r.status_code==200)
+            value = r.json()['value']
+        logger.debug('({}) ask {} to get key {} -> value {}'\
+                .format(self._id, remote_node, key, value))
     #-------------------------------------- end of remote part --------------------------------------
 
     #-------------------------------------- start of internal part --------------------------------------
@@ -680,23 +712,4 @@ class Node(object):
         if e_int - s_int <= 1:      # empty set
             return False
         return s_int < n_int < e_int
-
-    def _hash(self, name):
-        '''
-        Calculate the identity of the name on the ring, by hashing.
-
-        Args:
-            name:   A string to be hashed.
-            
-        Returns:
-            The identity for the key.
-
-        Raises:
-            N/A
-        '''
-        m = hashlib.sha1()
-        m.update(name.encode('utf-8'))
-        h = m.hexdigest()
-        v = int(h, 16) % ct.TWO_EXP[ct.RING_SIZE_BIT]
-        return helper._format(v)
     #-------------------------------------- end of internal part --------------------------------------

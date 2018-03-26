@@ -48,9 +48,28 @@ def _gen_id(identity):
         identity:   A hex string.
 
     Returns:
-        N/A
+        The identity for the key.
 
-    Raises;
+    Raises:
         N/A
     '''
     return ct.CONTAINER_PREFIX + identity
+
+def _hash(name):
+    '''
+    Calculate the identity of the name on the ring, by hashing.
+
+    Args:
+        name:   A string to be hashed.
+        
+    Returns:
+        The identity for the key.
+
+    Raises:
+        N/A
+    '''
+    m = hashlib.sha1()
+    m.update(name.encode('utf-8'))
+    h = m.hexdigest()
+    v = int(h, 16) % ct.TWO_EXP[ct.RING_SIZE_BIT]
+    return _format(v)
