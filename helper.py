@@ -8,11 +8,12 @@ def main():
     # define arguments
     parser = argparse.ArgumentParser(description='helper script for management nodes')
     ex_group = parser.add_mutually_exclusive_group()
-    ex_group.add_argument('-r', '--run_node', metavar='NODE_NAME [JOIN_BY_NODE_ID]', nargs='+', help='run the chord node with the name(no hash)')
+    ex_group.add_argument('-r', '--run_node', metavar='NODE_ID [JOIN_BY_NODE_ID]', nargs='+', help='run the chord node with the name(no hash)')
     ex_group.add_argument('-b', '--build_image', action='store_true', help='build the chord image')
     ex_group.add_argument('-c', '--clean_up', metavar='REMOVE_IMAGE', nargs='?', type=bool, const=False, help='clean up and arg is to remove image or not')
     ex_group.add_argument('-n', '--create_network', action='store_true', help='create network')
-    ex_group.add_argument('-l', '--local_finger_table', action='store_true', help='get local node\'s finger table')
+    ex_group.add_argument('-f', '--local_finger_table', action='store_true', help='get local node\'s finger table')
+    ex_group.add_argument('-d', '--local_data', action='store_true', help='display the local node\'s key value data')
     # behave according to the arguments
     args = parser.parse_args()
     if args.build_image:
@@ -25,6 +26,8 @@ def main():
         handlers.create_network()
     elif args.local_finger_table:
         handlers.local_finger_table()
+    elif args.local_data:
+        handlers.local_data()
     else:
         parser.print_help()
 

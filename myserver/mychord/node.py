@@ -356,6 +356,21 @@ class Node(object):
         logger.debug('({}) get key {} -> {}'\
                         .format(self._id, key, value))
         return value
+
+    def display_data(self):
+        '''
+        Return the finger table 
+
+        Args:
+            N/A
+
+        Returns:
+            A dict representing key-value pairs.
+
+        Raises:
+            N/A
+        '''
+        return self._data
     #-------------------------------------- end of local part --------------------------------------
 
     #-------------------------------------- start of remote part --------------------------------------

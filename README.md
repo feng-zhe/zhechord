@@ -68,3 +68,8 @@ output: `{}`
 #### POST
 input:  `{'key': xxx}`
 output: `{'value':xxx}`
+
+### /display_data
+#### POST
+input:  `{}`
+output: `{'result':'<dict object in json>'}`

@@ -168,3 +168,23 @@ def local_finger_table():
     ft = r.json()['result']
     tbody = [[i, ft[i]] for i in range(1,len(ft))]
     print(tabulate.tabulate(tbody, headers=['Index', 'Node']))
+
+def local_data():
+    '''
+    Display the key-value data of this node.
+
+    Args:
+        N/A
+
+    Returns:
+        N/A
+
+    Raises:
+        N/A
+    '''
+    r = requests.post('http://localhost:8000/display_data', json={})
+    assert(r.status_code==200)
+    # format the output
+    data = r.json()['result']
+    tbody = [[key, data[key]] for key in data]
+    print(tabulate.tabulate(tbody, headers=['key', 'value']))
