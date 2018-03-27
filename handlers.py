@@ -149,12 +149,13 @@ def clean_up(rm_img):
         sp.run(cmd, shell=True, stdout=sp.PIPE, check=True)
         logger.info('Done')
 
-def local_finger_table():
+def display_finger_table(node_id=None):
     '''
-    Send request to local node and get finger table information.
+    Get finger table information.
 
     Args:
-        N/A
+        node_id:    The node id. 
+                    If None, display local one.
 
     Returns:
         N/A
@@ -162,19 +163,25 @@ def local_finger_table():
     Raises:
         N/A
     '''
-    r = requests.post('http://localhost:8000/display_finger_table', json={})
-    assert(r.status_code==200)
-    # format the output
-    ft = r.json()['result']
-    tbody = [[i, ft[i]] for i in range(1,len(ft))]
-    print(tabulate.tabulate(tbody, headers=['Index', 'Node']))
+    if node_id == None:
+        r = requests.post('http://localhost:8000/display_finger_table', json={})
+        assert(r.status_code==200)
+        # format the output
+        ft = r.json()['result']
+        tbody = [[i, ft[i]] for i in range(1,len(ft))]
+        print(tabulate.tabulate(tbody, headers=['Index', 'Node']))
+    else:
+        cmd = 'docker exec {}{} pipenv run python helper.py -f'\
+                .format(CONTAINER_PREFIX, node_id)
+        sp.run(cmd, shell=True)
 
-def local_data():
+def display_data(node_id=None):
     '''
-    Display the key-value data of this node.
+    Display the key-value data.
 
     Args:
-        N/A
+        node_id:    The node id. 
+                    If None, display local one.
 
     Returns:
         N/A
@@ -182,9 +189,14 @@ def local_data():
     Raises:
         N/A
     '''
-    r = requests.post('http://localhost:8000/display_data', json={})
-    assert(r.status_code==200)
-    # format the output
-    data = r.json()['result']
-    tbody = [[key, data[key]] for key in data]
-    print(tabulate.tabulate(tbody, headers=['key', 'value']))
+    if node_id == None:
+        r = requests.post('http://localhost:8000/display_data', json={})
+        assert(r.status_code==200)
+        # format the output
+        data = r.json()['result']
+        tbody = [[key, data[key]] for key in data]
+        print(tabulate.tabulate(tbody, headers=['key', 'value']))
+    else:
+        cmd = 'docker exec {}{} pipenv run python helper.py -d'\
+                .format(CONTAINER_PREFIX, node_id)
+        sp.run(cmd, shell=True)
