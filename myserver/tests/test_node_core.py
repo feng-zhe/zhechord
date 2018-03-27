@@ -184,6 +184,7 @@ class TestNodeCore(unittest.TestCase):
         ms = MockServer()
         post_mock.side_effect = lambda url, json : ms.post(url, json)
         # test:  join 3 node
+        logging.disable(logging.DEBUG)      # disable logging
         node_0 = Node('0')
         ms.add_node(node_0._id, node_0)
         node_0.join()
@@ -197,15 +198,19 @@ class TestNodeCore(unittest.TestCase):
         node_1.join(node_3._id)
         for i in range(0, 10):
             ms.period()
+        logging.disable(logging.NOTSET)      # enable logging
         ft = node_0.display_finger_table()
+        self.assertEqual(ft[0], '3')
         self.assertEqual(ft[1], '1')
         self.assertEqual(ft[2], '3')
         self.assertEqual(ft[3], '0')
         ft = node_3.display_finger_table()
+        self.assertEqual(ft[0], '1')
         self.assertEqual(ft[1], '0')
         self.assertEqual(ft[2], '0')
         self.assertEqual(ft[3], '0')
         ft = node_1.display_finger_table()
+        self.assertEqual(ft[0], '0')
         self.assertEqual(ft[1], '3')
         self.assertEqual(ft[2], '3')
         self.assertEqual(ft[3], '0')
@@ -230,7 +235,7 @@ class TestNodeCore(unittest.TestCase):
         node_1.join(node_3._id)
         for i in range(0, 10):
             ms.period()
-        logging.disable(logging.NOTSET)      # disable logging
+        logging.disable(logging.NOTSET)      # enable logging
         # put&get key-value
         node_0.put('hello', 'world')
         self.assertEqual(node_0.get('hello'), 'world')

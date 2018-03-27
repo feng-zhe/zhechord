@@ -191,10 +191,14 @@ class Node(object):
                 remote_node, 
                 self._predecessor, 
                 self._id):
+            logger.debug('({0}) notified by {1} -> In range ({2},{0})'
+                    .format(self._id, remote_node, self._predecessor))
             self._predecessor = remote_node
             logger.debug('({0}) notified by {1} -> Done and changed predecesor to {1}'
                     .format(self._id, remote_node))
         else:
+            logger.debug('({0}) notified by {1} -> Not in range ({2},{0})'
+                    .format(self._id, remote_node, self._predecessor))
             logger.debug('({}) notified by {} -> Done but not changed'
                     .format(self._id, remote_node))
 
@@ -295,12 +299,12 @@ class Node(object):
             N/A
 
         Returns:
-            A array of  [None, xxx, xxx, xxx]
+            A array of  [predecessor, xxx, xxx, xxx]
 
         Raises:
             N/A
         '''
-        result = [None]
+        result = [self.get_predecessor()]
         for i in range(1, ct.RING_SIZE_BIT+1):
             result.append(self._table.get_node(i))
         return result
@@ -594,16 +598,16 @@ class Node(object):
             requests.exceptions.ConnectionError
             AssertionError
         '''
-        logger.debug('({}) notify {}'.format(self._id, remote_node))
-        if remote_node == self._id:     # if self, call self
-            self.notify(identity)
+        logger.debug('({}) notify {} with {}'.format(self._id, remote_node, identity))
+        if remote_node == self._id:     # mine: if self, impossible to be its self predecessor 
+            logger.debug('({}) notify {} -> Abort, it cannot be its own predecessor'.format(self._id, remote_node))
         else:
             url = 'http://{}:8000/notify'\
                     .format(helper._gen_net_id(remote_node))
             payload = { 'id': identity }
             r = requests.post(url, json=payload)
             assert(r.status_code==200)
-        logger.debug('({}) notify {} -> Done!'.format(self._id, remote_node))
+            logger.debug('({}) notify {} -> Done!'.format(self._id, remote_node))
 
     def remote_put(self, remote_node, key, value):
         '''

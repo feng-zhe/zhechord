@@ -168,7 +168,7 @@ def display_finger_table(node_id=None):
         assert(r.status_code==200)
         # format the output
         ft = r.json()['result']
-        tbody = [[i, ft[i]] for i in range(1,len(ft))]
+        tbody = [[i, ft[i]] for i in range(0,len(ft))]
         print(tabulate.tabulate(tbody, headers=['Index', 'Node']))
     else:
         cmd = 'docker exec {}{} pipenv run python helper.py -f'\
