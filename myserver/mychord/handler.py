@@ -41,7 +41,7 @@ class ChordServerHandler(BaseHTTPRequestHandler):
             sv.g_node.put(data['key'], data['value'])
             self._response(200, {})
         elif path == '/get':
-            value = sv.g_node.put(data['key'])
+            value = sv.g_node.get(data['key'])
             self._response(200, {'value': value})
         elif path == '/display_data':
             kv = sv.g_node.display_data()

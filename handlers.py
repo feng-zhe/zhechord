@@ -200,3 +200,78 @@ def display_data(node_id=None):
         cmd = 'docker exec {}{} pipenv run python helper.py -d'\
                 .format(CONTAINER_PREFIX, node_id)
         sp.run(cmd, shell=True)
+
+def remote_put(node_id, key, value):
+    '''
+    Store the key-value pair in to ring via node_id.
+
+    Args:
+        node_id:    The node id.
+        key:        The key of key-value pair.
+        value:      The value of key-value pair.
+
+    Returns:
+        N/A
+
+    Raises:
+        N/A
+    '''
+    cmd = 'docker exec {}{} pipenv run python helper.py --local_put {} {}'\
+            .format(CONTAINER_PREFIX, node_id, key, value)
+    sp.run(cmd, shell=True)
+
+def local_put(key, value):
+    '''
+    Ask local node to store the (key, value).
+
+    Args:
+        key:        The key of key-value pair.
+        value:      The value of key-value pair.
+
+    Returns:
+        N/A
+
+    Raises:
+        N/A
+    '''
+    payload = { 'key': key, 'value': value }
+    r = requests.post('http://localhost:8000/put', json=payload)
+    assert(r.status_code==200)
+
+def remote_get(node_id, key):
+    '''
+    Get the value for the key.
+
+    Args:
+        node_id:    The node id.
+        key:        The key of key-value pair.
+
+    Returns:
+        The value for the key.
+
+    Raises:
+        N/A
+    '''
+    cmd = 'docker exec {}{} pipenv run python helper.py --local_get {}'\
+            .format(CONTAINER_PREFIX, node_id, key)
+    sp.run(cmd, shell=True)
+
+def local_get(key):
+    '''
+    Ask local node to get the value for key.
+
+    Args:
+        key:        The key of key-value pair.
+
+    Returns:
+        The value for the key.
+
+    Raises:
+        N/A
+    '''
+    payload = { 'key': key }
+    r = requests.post('http://localhost:8000/get', json=payload)
+    assert(r.status_code==200)
+    value = r.json()['value']
+    print(value)
+
