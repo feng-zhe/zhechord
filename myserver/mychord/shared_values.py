@@ -1,6 +1,7 @@
 '''
 Shared values among files.
 '''
+import random
 import threading
 import time
 import mychord.node as node
@@ -15,7 +16,8 @@ def period():
     while True:
         g_node.stabilize()
         g_node.fix_fingers(True)        # TODO: change to random after docker test is passed
-        time.sleep(5)
+        rand_t = random.randint(50, 100) / 10
+        time.sleep(rand_t)
 
 def init(self_id, remote_id=None):
     global g_node 

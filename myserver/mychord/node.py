@@ -6,6 +6,7 @@ Reference:
 '''
 import logging
 import random
+import time
 import requests
 import mychord.finger_table as ft
 import mychord.constants as ct
@@ -390,7 +391,6 @@ class Node(object):
             The id of the predecessor.
 
         Raises:
-            requests.exceptions.ConnectionError
             AssertionError
             KeyError
         '''
@@ -399,7 +399,7 @@ class Node(object):
         url = 'http://{}:8000/find_predecessor'\
                 .format(helper._gen_net_id(remote_node))
         payload = { 'id': identity }
-        r = requests.post(url, json=payload)
+        r = self._requests_post(url, payload)
         assert(r.status_code==200)
         return r.json()['id']
 
@@ -414,7 +414,6 @@ class Node(object):
             The id of the predecessor.
 
         Raises:
-            requests.exceptions.ConnectionError
             AssertionError
             KeyError
         '''
@@ -426,7 +425,7 @@ class Node(object):
             url = 'http://{}:8000/get_predecessor'\
                     .format(helper._gen_net_id(remote_node))
             payload = {}
-            r = requests.post(url, json=payload)
+            r = self._requests_post(url, payload)
             pred = r.json()['id']
             assert(r.status_code==200)
         logger.debug('({}) ask {} for its own predecessor -> {}'
@@ -445,7 +444,6 @@ class Node(object):
             N/A
 
         Raises:
-            requests.exceptions.ConnectionError
             AssertionError
         '''
         logger.debug('({}) ask {} to set its predecessor as {}'
@@ -456,7 +454,7 @@ class Node(object):
             url = 'http://{}:8000/set_predecessor'\
                     .format(helper._gen_net_id(emote_node))
             payload = { 'id': identity }
-            r = requests.post(url, json=payload)
+            r = self._requests_post(url, payload)
             assert(r.status_code==200)
         logger.debug('({}) ask {} to set its predecessor as {} is done'
                         .format(self._id, remote_node, identity))
@@ -473,7 +471,6 @@ class Node(object):
             The id of the successor.
 
         Raises:
-            requests.exceptions.ConnectionError
             AssertionError
             KeyError
         '''
@@ -485,7 +482,7 @@ class Node(object):
             url = 'http://{}:8000/get_successor'\
                     .format(helper._gen_net_id(remote_node))
             payload = {}
-            r = requests.post(url, json=payload)
+            r = self._requests_post(url, payload)
             assert(r.status_code==200)
             succ = r.json()['id']
         logger.debug('({}) ask {} for its own successor -> {}'
@@ -504,7 +501,6 @@ class Node(object):
             N/A
 
         Raises:
-            requests.exceptions.ConnectionError
             AssertionError
         '''
         logger.debug('({}) ask {} to set its successor as {}'
@@ -515,7 +511,7 @@ class Node(object):
             url = 'http://{}:8000/set_successor'\
                     .format(helper._gen_net_id(remote_node))
             payload = { 'id': identity }
-            r = requests.post(url, json=payload)
+            r = self._requests_post(url, payload)
             assert(r.status_code==200)
         logger.debug('({}) ask {} to set its successor as {} is done'
                         .format(self._id, remote_node, identity))
@@ -533,7 +529,6 @@ class Node(object):
             The id of the successor.
 
         Raises:
-            requests.exceptions.ConnectionError
             AssertionError
             KeyError
         '''
@@ -545,7 +540,7 @@ class Node(object):
             url = 'http://{}:8000/find_successor'\
                     .format(helper._gen_net_id(remote_node))
             payload = { 'id': identity }
-            r = requests.post(url, json=payload)
+            r = self._requests_post(url, payload)
             assert(r.status_code==200)
             succ = r.json()['id']
         logger.debug('({}) ask {} to find successor of {} -> {}'
@@ -564,7 +559,6 @@ class Node(object):
             The identity of the closest finger preceding id on remote node.
 
         Raises:
-            requests.exceptions.ConnectionError
             AssertionError
             KeyError
         '''
@@ -576,7 +570,7 @@ class Node(object):
             url = 'http://{}:8000/closest_preceding_finger'\
                     .format(helper._gen_net_id(remote_node))
             payload = { 'id': identity }
-            r = requests.post(url, json=payload)
+            r = self._requests_post(url, payload)
             assert(r.status_code==200)
             cpt = r.json()['id']
         logger.debug('({}) ask {} to find closest preceding finger of {} -> {}'
@@ -595,7 +589,6 @@ class Node(object):
             N/A
 
         Raises:
-            requests.exceptions.ConnectionError
             AssertionError
         '''
         logger.debug('({}) notify {} with {}'.format(self._id, remote_node, identity))
@@ -605,7 +598,7 @@ class Node(object):
             url = 'http://{}:8000/notify'\
                     .format(helper._gen_net_id(remote_node))
             payload = { 'id': identity }
-            r = requests.post(url, json=payload)
+            r = self._requests_post(url, payload)
             assert(r.status_code==200)
             logger.debug('({}) notify {} -> Done!'.format(self._id, remote_node))
 
@@ -632,7 +625,7 @@ class Node(object):
             url = 'http://{}:8000/put'\
                     .format(helper._gen_net_id(remote_node))
             payload = { 'key': key, 'value': value }
-            r = requests.post(url, json=payload)
+            r = self._requests_post(url, payload)
             assert(r.status_code==200)
         logger.debug('({}) ask {} to put key {} value {} -> Done'\
                 .format(self._id, remote_node, key, value))
@@ -658,12 +651,26 @@ class Node(object):
         else:
             url = 'http://{}:8000/get'.format(helper._gen_net_id(remote_node))
             payload = { 'key': key }
-            r = requests.post(url, json=payload)
+            r = self._requests_post(url, payload)
             assert(r.status_code==200)
             value = r.json()['value']
         logger.debug('({}) ask {} to get key {} -> value {}'\
                 .format(self._id, remote_node, key, value))
         return value
+
+    def _requests_post(self, url, payload, timeout=2):
+        correct = False
+        r = None
+        while not correct:
+            try:
+                r = requests.post(url, json=payload, timeout=timeout)
+                correct = True
+            except requests.exceptions.Timeout:
+                logger.info('request failed, try again soon.')
+                rand_t = random.randint(10,30) / 10
+                time.sleep(rand_t)
+        return r
+
     #-------------------------------------- end of remote part --------------------------------------
 
     #-------------------------------------- start of internal part --------------------------------------

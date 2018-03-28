@@ -1,4 +1,6 @@
 import hashlib
+import random
+import time
 import subprocess as sp
 import logging
 import requests
@@ -168,7 +170,7 @@ def display_finger_table(node_id=None):
         N/A
     '''
     if node_id == None:
-        r = requests.post('http://localhost:8000/display_finger_table', json={})
+        r = _requests_post('http://localhost:8000/display_finger_table', {})
         assert(r.status_code==200)
         # format the output
         ft = r.json()['result']
@@ -194,7 +196,7 @@ def display_data(node_id=None):
         N/A
     '''
     if node_id == None:
-        r = requests.post('http://localhost:8000/display_data', json={})
+        r = _requests_post('http://localhost:8000/display_data', {})
         assert(r.status_code==200)
         # format the output
         data = r.json()['result']
@@ -239,7 +241,7 @@ def local_put(key, value):
         N/A
     '''
     payload = { 'key': key, 'value': value }
-    r = requests.post('http://localhost:8000/put', json=payload)
+    r = _requests_post('http://localhost:8000/put', payload)
     assert(r.status_code==200)
 
 def remote_get(node_id, key):
@@ -274,8 +276,20 @@ def local_get(key):
         N/A
     '''
     payload = { 'key': key }
-    r = requests.post('http://localhost:8000/get', json=payload)
+    r = _requests_post('http://localhost:8000/get', payload)
     assert(r.status_code==200)
     value = r.json()['value']
-    print(value)
+    print(key, '->', value)
 
+def _requests_post(url, payload, timeout=2):
+    correct = False
+    r = None
+    while not correct:
+        try:
+            r = requests.post(url, json=payload, timeout=timeout)
+            correct = True
+        except requests.exceptions.Timeout:
+            logger.info('request failed, try again soon.')
+            rand_t = random.randint(10,30) / 10
+            time.sleep(rand_t)
+    return r
