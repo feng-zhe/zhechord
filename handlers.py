@@ -45,25 +45,29 @@ def build_image():
     cmd = 'docker images'
     logger.info('Finding old image id, name {}'.format(IMAGE_NAME))
     proc= sp.run(cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
-    old_image_id = ''
+    old_image_id = None 
     lines = proc.stdout.splitlines()
     for line in lines[1:]:
         words = line.split()
         if words[0].decode('utf-8') == IMAGE_NAME:
             old_image_id = words[2].decode('utf-8')
             break
-    logger.info('Found it: {}'.format(old_image_id))
-    logger.info('Done')
+    if old_image_id:
+        logger.info('Found it: {}'.format(old_image_id))
+        logger.info('Done')
+    else:
+        logger.info('There is no old image')
     # build new image
     cmd = 'docker build -t {} ./'.format(IMAGE_NAME)
     logger.info('Building image, name {}'.format(IMAGE_NAME))
     sp.run(cmd, shell=True, stdout=sp.PIPE, check=True)
     logger.info('Done')
     # remove old image
-    cmd = 'docker rmi {}'.format(old_image_id)
-    logger.info('Removing old image, id {}'.format(old_image_id))
-    sp.run(cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
-    logger.info('Done')
+    if old_image_id:
+        cmd = 'docker rmi {}'.format(old_image_id)
+        logger.info('Removing old image, id {}'.format(old_image_id))
+        sp.run(cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+        logger.info('Done')
 
 def create_network():
     '''
