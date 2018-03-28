@@ -7,8 +7,8 @@ The branch basic is freezed and only for bug fix. Based on teacher's feedback, i
 The branch master is the active branch and contains advanced functions.
 
 ## TODO
-- put(key) and get(key)
 - duplication for fault tolerance.
+- refactor with docker-py
 
 ## Container Prefix
 Because docker containers must have names starting with alphabets. So The prefix will be 'CR_' (chord ring).

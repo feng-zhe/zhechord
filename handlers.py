@@ -101,10 +101,10 @@ def run_node(names):
     # hname = _hash(name)
     cname = CONTAINER_PREFIX + names[0]
     if len(names) == 1:
-        cmd = 'docker run --name {} -dit --network={} {} {}'\
+        cmd = 'docker run --name {} -d --network={} {} {}'\
                 .format(cname, NET_NAME, IMAGE_NAME, names[0])
     else:
-        cmd = 'docker run --name {} -dit --network={} {} {} {}'\
+        cmd = 'docker run --name {} -d --network={} {} {} {}'\
                 .format(cname, NET_NAME, IMAGE_NAME, names[0], names[1])
     logger.info('Starting container with name {}'.format(cname))
     sp.run(cmd, shell=True, stdout=sp.PIPE, check=True)
