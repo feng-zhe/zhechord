@@ -15,7 +15,7 @@ def period():
     while True:
         g_node.stabilize()
         g_node.fix_fingers(True)        # TODO: change to random after docker test is passed
-        time.sleep(1)
+        time.sleep(5)
 
 def init(self_id, remote_id=None):
     global g_node 
