@@ -4,12 +4,16 @@ Main file for running a node server
 import sys
 import logging
 from http.server import HTTPServer
+from socketserver import ThreadingMixIn
 import mychord.handler as handler
 import mychord.shared_values as sv
 
 logging.basicConfig(level=logging.DEBUG)
 
-def run(server_class=HTTPServer, handler_class=handler.ChordServerHandler):
+class ThreadingServer(ThreadingMixIn, HTTPServer):
+    pass
+
+def run(server_class=ThreadingServer, handler_class=handler.ChordServerHandler):
     server_address = ('', 8000)
     httpd = server_class(server_address, handler_class)
     httpd.serve_forever()

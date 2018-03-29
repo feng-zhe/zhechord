@@ -337,7 +337,7 @@ class Node(object):
 
     def get(self, key):
         '''
-        Put the key into the ring.
+        Get the value for key from the ring.
 
         Args:
             key:    The key of the key-value pair.
