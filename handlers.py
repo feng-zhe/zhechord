@@ -5,7 +5,6 @@ import subprocess as sp
 import logging
 import requests
 import tabulate
-import myserver.mychord.constants as ct
 import myserver.mychord.helper as hp
 
 logger = logging.getLogger(__name__)
@@ -79,9 +78,9 @@ def run_node(names):
 
     Args:
         names:  A list of node ids. 
-                The first one is name for this node.
+                The first one is id in hex for this node.
                 The second one is the node already in the ring.
-                Both will be hashed.
+                Both will be formated, but not hashed.
 
     Returns:
         N/A
@@ -89,15 +88,15 @@ def run_node(names):
     Raises:
         CalledProcessError
     '''
-    hname0 = hp._hash(names[0])
-    cname = ct.CONTAINER_PREFIX + hname0
+    name0 = hp._format(int(names[0],16))
+    cname = hp._gen_net_id(name0)
     if len(names) == 1:
         cmd = 'docker run --name {} -d --network={} {} {}'\
-                .format(cname, NET_NAME, IMAGE_NAME, hname0)
+                .format(cname, NET_NAME, IMAGE_NAME, name0)
     else:
-        hname1 = hp._hash(names[1])
+        name1 = hp._format(int(names[1],16))
         cmd = 'docker run --name {} -d --network={} {} {} {}'\
-                .format(cname, NET_NAME, IMAGE_NAME, hname0, hname1)
+                .format(cname, NET_NAME, IMAGE_NAME, name0, name1)
     logger.info('Starting container with name {}'.format(cname))
     sp.run(cmd, shell=True, stdout=sp.PIPE, check=True)
     logger.info('Done')
@@ -163,8 +162,9 @@ def display_finger_table(node_id=None):
         tbody = [[i, ft[i]] for i in range(0,len(ft))]
         print(tabulate.tabulate(tbody, headers=['Index', 'Node']))
     else:
-        cmd = 'docker exec {}{} pipenv run python helper.py -f'\
-                .format(ct.CONTAINER_PREFIX, hp._hash(node_id))
+        cname = hp._gen_net_id(node_id)
+        cmd = 'docker exec {} pipenv run python helper.py -f'\
+                .format(cname)
         sp.run(cmd, shell=True)
 
 def display_data(node_id=None):
@@ -189,8 +189,9 @@ def display_data(node_id=None):
         tbody = [[key, data[key]] for key in data]
         print(tabulate.tabulate(tbody, headers=['key', 'value']))
     else:
-        cmd = 'docker exec {}{} pipenv run python helper.py -d'\
-                .format(ct.CONTAINER_PREFIX, hp._hash(node_id))
+        cname = hp._gen_net_id(node_id)
+        cmd = 'docker exec {} pipenv run python helper.py -d'\
+                .format(cname)
         sp.run(cmd, shell=True)
 
 def remote_put(node_id, key, value):
@@ -208,8 +209,9 @@ def remote_put(node_id, key, value):
     Raises:
         N/A
     '''
-    cmd = 'docker exec {}{} pipenv run python helper.py --local_put {} {}'\
-            .format(ct.CONTAINER_PREFIX, hp.hash(node_id), key, value)
+    cname = hp._gen_net_id(node_id)
+    cmd = 'docker exec {} pipenv run python helper.py --local_put {} {}'\
+            .format(cname, key, value)
     sp.run(cmd, shell=True)
 
 def local_put(key, value):
@@ -244,8 +246,9 @@ def remote_get(node_id, key):
     Raises:
         N/A
     '''
-    cmd = 'docker exec {}{} pipenv run python helper.py --local_get {}'\
-            .format(ct.CONTAINER_PREFIX, hp._hash(node_id), key)
+    cname = hp._gen_net_id(node_id)
+    cmd = 'docker exec {} pipenv run python helper.py --local_get {}'\
+            .format(cname, key)
     sp.run(cmd, shell=True)
 
 def local_get(key):

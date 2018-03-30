@@ -45,7 +45,7 @@ def _gen_net_id(node_id):
     Generate the network id for the node.
 
     Args:
-        node_id:   The identity of the node.
+        node_id:   The identity of the node in hex.
 
     Returns:
         The network id for the node.
@@ -53,7 +53,8 @@ def _gen_net_id(node_id):
     Raises:
         N/A
     '''
-    return ct.CONTAINER_PREFIX + node_id
+    fname = _format(int(node_id, 16))
+    return ct.CONTAINER_PREFIX + fname
 
 def _hash(name):
     '''
