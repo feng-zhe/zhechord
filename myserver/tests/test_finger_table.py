@@ -1,7 +1,7 @@
 import hashlib
 import unittest
-import mychord.constants as ct
-from mychord.finger_table import FingerTable
+import myserver.mychord.constants as ct
+from myserver.mychord.finger_table import FingerTable
 
 class TestFingerTable(unittest.TestCase):
     

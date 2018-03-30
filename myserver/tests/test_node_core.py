@@ -4,9 +4,11 @@ This file tests the core functionality of Node on small rings.
 import unittest
 import logging
 from unittest.mock import patch
-import mychord.constants as ct
-from mychord.node import Node
-from tests.mock_server import MockServer
+import myserver.mychord.constants as ct
+from myserver.mychord.node import Node
+from . import mock_server
+
+MockServer = mock_server.MockServer
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -43,7 +45,7 @@ class TestNodeCore(unittest.TestCase):
         '''
         # set up mock server
         ms = MockServer()
-        post_mock.side_effect = lambda url, json : ms.post(url, json)
+        post_mock.side_effect = lambda url, json, timeout : ms.post(url, json)
         # test 1: node 0 creates a new ring
         node_0 = Node('0')
         ms.add_node(node_0._id, node_0)       # add this node to mocked server
@@ -114,7 +116,7 @@ class TestNodeCore(unittest.TestCase):
         '''
         # set up mock server
         ms = MockServer()
-        post_mock.side_effect = lambda url, json : ms.post(url, json)
+        post_mock.side_effect = lambda url, json, timeout : ms.post(url, json)
         # test 1: node 6 creates a new ring
         node_6 = Node('6')
         ms.add_node(node_6._id, node_6)       # add this node to mocked server
@@ -182,7 +184,7 @@ class TestNodeCore(unittest.TestCase):
     def test_display_finger_table(self, post_mock):
         # set up mock server
         ms = MockServer()
-        post_mock.side_effect = lambda url, json : ms.post(url, json)
+        post_mock.side_effect = lambda url, json, timeout : ms.post(url, json)
         # test:  join 3 node
         logging.disable(logging.DEBUG)      # disable logging
         node_0 = Node('0')
@@ -219,7 +221,7 @@ class TestNodeCore(unittest.TestCase):
     def test_put_get(self, post_mock):
         # set up mock server
         ms = MockServer()
-        post_mock.side_effect = lambda url, json : ms.post(url, json)
+        post_mock.side_effect = lambda url, json, timeout : ms.post(url, json)
         # create nodes
         logging.disable(logging.DEBUG)      # disable logging
         node_0 = Node('0')

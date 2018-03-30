@@ -4,7 +4,7 @@ Shared values among files.
 import random
 import threading
 import time
-import mychord.node as node
+from . import node
 
 # shared values
 g_node = None

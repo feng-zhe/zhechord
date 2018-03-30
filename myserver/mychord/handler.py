@@ -1,6 +1,6 @@
 import json
 from http.server import BaseHTTPRequestHandler
-import mychord.shared_values as sv
+from . import shared_values as sv
 
 class ChordServerHandler(BaseHTTPRequestHandler):
 

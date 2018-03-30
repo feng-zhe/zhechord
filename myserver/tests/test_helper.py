@@ -1,6 +1,6 @@
 import unittest
-import mychord.helper as helper
-import mychord.constants as ct
+import myserver.mychord.helper as helper
+import myserver.mychord.constants as ct
 
 class TestHelper(unittest.TestCase):
     

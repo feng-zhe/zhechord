@@ -8,9 +8,9 @@ import logging
 import random
 import time
 import requests
-import mychord.finger_table as ft
-import mychord.constants as ct
-import mychord.helper as helper
+from . import finger_table as ft
+from . import constants as ct
+from . import helper as helper
 
 logger = logging.getLogger(__name__)
 

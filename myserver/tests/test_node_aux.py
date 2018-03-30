@@ -1,8 +1,8 @@
 import unittest
 import logging
-import mychord.constants as ct
-import mychord.helper as helper
-from mychord.node import Node
+import myserver.mychord.constants as ct
+import myserver.mychord.helper as helper
+from myserver.mychord.node import Node
 
 logging.basicConfig(level=logging.DEBUG)
 

@@ -1,5 +1,5 @@
 import hashlib
-import mychord.constants as ct
+from . import constants as ct
 
 def _format(value):
     '''
