@@ -9,13 +9,14 @@ The branch master is the active branch and contains advanced functions.
 ## TODO
 - duplication for fault tolerance.
 - refactor with docker-py
+- demo 0 -> 1 -> 3 -> 11 -> 15 -> 1c
 
 ## Container Prefix
 Because docker containers must have names starting with alphabets. So The prefix will be 'CR_' (chord ring).
 Prefix is normally used in requests. But internally, the id without prefix will be used.
 
 ## Identity, Key
-Identity is the position on the ring. While the key is the 'key' in key-value pair.
+Identity is the position on the ring in hex. While the key is the 'key' in key-value pair.
 When putting the key and value, the key will first be hashed and get the identity for the key. And this identity will be used to locate the node which contains the key. So as getting.
 
 ## Web API
