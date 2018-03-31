@@ -12,6 +12,30 @@ logger = logging.getLogger(__name__)
 IMAGE_NAME = 'fengzhe_chord'
 NET_NAME = 'mynet'
 
+def _find_image_id():
+    '''
+    Find the image id.
+
+    Args:
+        N/A
+
+    Returns:
+        A string for the image id.
+
+    Raises:
+        N/A
+    '''
+    image = None
+    cmd = 'docker images'
+    proc= sp.run(cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+    lines = proc.stdout.splitlines()
+    for line in lines[1:]:
+        words = line.split()
+        if words[0].decode('utf-8') == IMAGE_NAME:
+            image = words[2].decode('utf-8')
+            break
+    return image
+
 def build_image():
     '''
     create the docker image for chord nodes
@@ -26,16 +50,8 @@ def build_image():
         CalledProcessError
     '''
     # record the old image id, wish it can use cache
-    cmd = 'docker images'
     logger.info('Finding old image id, name {}'.format(IMAGE_NAME))
-    proc= sp.run(cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
-    old_image_id = None 
-    lines = proc.stdout.splitlines()
-    for line in lines[1:]:
-        words = line.split()
-        if words[0].decode('utf-8') == IMAGE_NAME:
-            old_image_id = words[2].decode('utf-8')
-            break
+    old_image_id = _find_image_id()
     if old_image_id:
         logger.info('Found it: {}'.format(old_image_id))
         logger.info('Done')
@@ -47,7 +63,8 @@ def build_image():
     sp.run(cmd, shell=True, stdout=sp.PIPE, check=True)
     logger.info('Done')
     # remove old image
-    if old_image_id:
+    new_image_id = _find_image_id()
+    if old_image_id and old_image_id != new_image_id:
         cmd = 'docker rmi {}'.format(old_image_id)
         logger.info('Removing old image, id {}'.format(old_image_id))
         sp.run(cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
