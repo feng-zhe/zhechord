@@ -422,6 +422,8 @@ class Node(object):
             AssertionError
             KeyError
         '''
+        logger.debug('({}) ask {} to find predecessor of {}'\
+                .format(self._id, remote_node, identity))
         if remote_node == self._id:     # if self, call self
             return self.find_predecessor(identity)
         url = 'http://{}:8000/find_predecessor'\
@@ -429,7 +431,10 @@ class Node(object):
         payload = { 'id': identity }
         r = self._requests_post(url, payload)
         assert(r.status_code==200)
-        return r.json()['id']
+        pred = r.json()['id']
+        logger.debug('({}) ask {} to find predecessor of {} -> {}'\
+                .format(self._id, remote_node, identity, pred))
+        return pred
 
     def remote_get_predecessor(self, remote_node):
         '''
@@ -818,4 +823,24 @@ class Node(object):
         for i in range(0, ct.BACKUP_SUCC_NUM):
             temp_succ = self.find_successor(helper._add(temp_succ, 1))
             self._backup_succ[i] = temp_succ
+
+    def _remove_dead(self, dead_node):
+        '''
+        Remove the dead node information.
+        This function is not mentioned in the chord ring paper.
+
+        Args:
+            dead_node:  The identity of the dead_node.
+
+        Returns:
+        Raises:
+            N/A
+        '''
+        # update finger table (including successor) with backup
+        backup = self._backup_succ[0]
+        for i in range(0, ct.RING_SIZE_BIT + 1):
+            if self._table.get_node(i) == dead_node:
+                self._table.set_node(i, backup)
+        # update backup successors
+        self._update_backup_succ()
     #-------------------------------------- end of internal part --------------------------------------
