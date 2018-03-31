@@ -22,11 +22,11 @@ class Node(object):
         '''
         Initialze:
 
-        self._id:   The identity of this node.
-        self._predecessor:    The predecessor of this node.
-        self._table:    The finger_table of this node.
-
-        Be aware that the successor is the finger[1].node.
+        self._id:           The identity of this node.
+        self._predecessor:  The predecessor of this node.
+        self._table:        The finger_table of this node.
+                            Be aware that the successor is the finger[1].node.
+        self._backup_succ:  A array of the backup successors.
 
         Args:
             identity:   The identity of this node.
@@ -39,8 +39,9 @@ class Node(object):
         '''
         self._id = identity
         self._predecessor = None
-        self._table = ft.FingerTable(identity) # finger table
-        self._data = {}                        # key-value store
+        self._table = ft.FingerTable(identity)      # finger table
+        self._backup_succ = []      # the backup successor
+        self._data = {}     # key-value store
 
     #-------------------------------------- start of local part --------------------------------------
     def find_successor(self, identity):
@@ -129,6 +130,7 @@ class Node(object):
         Raises:
             N/A
         '''
+        succ = self._id
         if remote_node:        # join a ring via node
             logger.debug('({}) join a ring via {}'
                     .format(self._id, remote_node))
@@ -147,11 +149,19 @@ class Node(object):
             for i in range(1, ct.RING_SIZE_BIT+1):
                 self._table.set_node(i, self._id)
             # end of mine
+        # mine: init backup successors
+        temp_succ = succ
+        for i in range(0, ct.BACKUP_SUCC_NUM):
+            temp_succ = self.find_successor(helper._add(temp_succ, 1))
+            self._backup_succ.append(temp_succ)
+        # end of mine
 
     def stabilize(self):
         '''
         Periodically verify n’s immediate successor, and tell the successor about n
         This function may change the successor and trigger notify().
+        According to chord ring's paper, this function is enhanced to also update
+        the backup successors.
 
         Args:
             N/A
@@ -169,6 +179,12 @@ class Node(object):
             self.set_successor(x)
         succ = self.get_successor()
         self.remote_notify(succ, self._id)
+        # mine: update the backup successors
+        temp_succ = succ
+        for i in range(0, ct.BACKUP_SUCC_NUM):
+            temp_succ = self.find_successor(helper._add(temp_succ, 1))
+            self._backup_succ[i] = temp_succ
+        # end of mine
         logger.debug('({}) stablizing -> Done'.format(self._id))
 
     def notify(self, remote_node):
@@ -376,6 +392,21 @@ class Node(object):
             N/A
         '''
         return self._data
+
+    def display_backup_succ(self):
+        '''
+        Return the backup successors.
+
+        Args:
+            N/A
+
+        Returns:
+            An array of backup successors.
+
+        Raises:
+            N/A
+        '''
+        return self._backup_succ
     #-------------------------------------- end of local part --------------------------------------
 
     #-------------------------------------- start of remote part --------------------------------------

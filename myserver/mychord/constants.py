@@ -3,7 +3,8 @@ Constants for the project.
 '''
 
 CONTAINER_PREFIX = 'cr_'
-RING_SIZE_BIT = 5
+RING_SIZE_BIT = 5       # the ring size in bits
+BACKUP_SUCC_NUM = 2    # the number of back up successors
 TWO_EXP = []  # the 2^i table, to speed up
 
 def init():

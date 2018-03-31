@@ -74,3 +74,8 @@ output: `{'value':xxx}`
 #### POST
 input:  `{}`
 output: `{'result':'<dict object in json>'}`
+
+### /display_backup_succ
+#### POST
+input:  `{}`
+output: `{'result': [xx,xx,xx]}`

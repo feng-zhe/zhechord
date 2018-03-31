@@ -161,6 +161,8 @@ def display_finger_table(node_id=None):
         ft = r.json()['result']
         tbody = [[i, ft[i]] for i in range(0,len(ft))]
         print(tabulate.tabulate(tbody, headers=['Index', 'Node']))
+        # display backup successor info
+        _display_backup_succ()
     else:
         cname = hp._gen_net_id(node_id)
         cmd = 'docker exec {} pipenv run python helper.py -f'\
@@ -282,3 +284,17 @@ def _requests_post(url, payload, timeout=2):
             rand_t = random.randint(10,30) / 10
             time.sleep(rand_t)
     return r
+
+def _display_backup_succ():
+    '''
+    Display the backup successors of the local node.
+
+    Args:
+    Returns:
+    Raises:
+        N/A
+    '''
+    r = _requests_post('http://localhost:8000/display_backup_succ', {})
+    assert(r.status_code==200)
+    data = r.json()['result']
+    print('backup successors are', data)

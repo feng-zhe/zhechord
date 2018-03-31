@@ -46,6 +46,9 @@ class ChordServerHandler(BaseHTTPRequestHandler):
         elif path == '/display_data':
             kv = sv.g_node.display_data()
             self._response(200, { 'result': kv})
+        elif path == '/display_backup_succ':
+            bp_succ = sv.g_node.display_backup_succ()
+            self._response(200, { 'result': bp_succ})
         else:
             self._response(400, {})
 
