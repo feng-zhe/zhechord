@@ -419,6 +419,7 @@ class Node(object):
             The id of the predecessor.
 
         Raises:
+            requests.ConnectionError
             AssertionError
             KeyError
         '''
@@ -447,6 +448,7 @@ class Node(object):
             The id of the predecessor.
 
         Raises:
+            requests.ConnectionError
             AssertionError
             KeyError
         '''
@@ -477,6 +479,7 @@ class Node(object):
             N/A
 
         Raises:
+            requests.ConnectionError
             AssertionError
         '''
         logger.debug('({}) ask {} to set its predecessor as {}'
@@ -504,6 +507,7 @@ class Node(object):
             The id of the successor.
 
         Raises:
+            requests.ConnectionError
             AssertionError
             KeyError
         '''
@@ -534,6 +538,7 @@ class Node(object):
             N/A
 
         Raises:
+            requests.ConnectionError
             AssertionError
         '''
         logger.debug('({}) ask {} to set its successor as {}'
@@ -562,6 +567,7 @@ class Node(object):
             The id of the successor.
 
         Raises:
+            requests.ConnectionError
             AssertionError
             KeyError
         '''
@@ -592,6 +598,7 @@ class Node(object):
             The identity of the closest finger preceding id on remote node.
 
         Raises:
+            requests.ConnectionError
             AssertionError
             KeyError
         '''
@@ -622,6 +629,7 @@ class Node(object):
             N/A
 
         Raises:
+            requests.ConnectionError
             AssertionError
         '''
         logger.debug('({}) notify {} with {}'.format(self._id, remote_node, identity))
@@ -648,7 +656,7 @@ class Node(object):
             N/A
 
         Raises:
-            N/A
+            requests.ConnectionError
         '''
         logger.debug('({}) ask {} to put key {} value {}'\
                 .format(self._id, remote_node, key, value))
@@ -675,7 +683,7 @@ class Node(object):
             The value of the key-value pair.
 
         Raises:
-            N/A
+            requests.ConnectionError
         '''
         logger.debug('({}) ask {} to get key {}'\
                 .format(self._id, remote_node, key))
