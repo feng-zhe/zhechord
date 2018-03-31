@@ -180,10 +180,7 @@ class Node(object):
         succ = self.get_successor()
         self.remote_notify(succ, self._id)
         # mine: update the backup successors
-        temp_succ = succ
-        for i in range(0, ct.BACKUP_SUCC_NUM):
-            temp_succ = self.find_successor(helper._add(temp_succ, 1))
-            self._backup_succ[i] = temp_succ
+        self._update_backup_succ()
         # end of mine
         logger.debug('({}) stablizing -> Done'.format(self._id))
 
@@ -690,13 +687,32 @@ class Node(object):
         return value
 
     def _requests_post(self, url, payload, timeout=2):
+        '''
+        Help function to send requests and retry 3 times.
+
+        Args:
+            url:    The target url.
+            payload:    The data in post.
+            timeout:    The timeout of the request. Default is 2.
+
+        Returns:
+            The corresponding object returned by requests.
+
+        Raises:
+            requests.ConnectionError
+        '''
         correct = False
         r = None
+        retry = 0
         while not correct:
             try:
                 r = requests.post(url, json=payload, timeout=timeout)
                 correct = True
             except requests.exceptions.Timeout:
+                retry += 1
+                if retry > ct.CONN_RETRY:      # reached max retry times
+                    logger.info('max retry times reached. Abort.')
+                    raise requests.ConnectionError()
                 logger.info('request failed, try again soon.')
                 rand_t = random.randint(10,30) / 10
                 time.sleep(rand_t)
@@ -788,4 +804,18 @@ class Node(object):
         if e_int - s_int <= 1:      # empty set
             return False
         return s_int < n_int < e_int
+
+    def _update_backup_succ(self):
+        '''
+        Update the backup successors.
+
+        Args:
+        Returns:
+        Raises:
+            N/A
+        '''
+        temp_succ = self.get_successor()
+        for i in range(0, ct.BACKUP_SUCC_NUM):
+            temp_succ = self.find_successor(helper._add(temp_succ, 1))
+            self._backup_succ[i] = temp_succ
     #-------------------------------------- end of internal part --------------------------------------
