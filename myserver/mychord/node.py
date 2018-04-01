@@ -142,19 +142,21 @@ class Node(object):
             # Then we init it's successor as "seed" and it will self-correct them.
             if remote_node == self.remote_get_successor(remote_node):
                 self.remote_set_successor(remote_node, self._id)
+            # init backup successors
+            temp_succ = succ
+            for i in range(0, ct.BACKUP_SUCC_NUM):
+                temp_succ = self.find_successor(helper._add(temp_succ, 1))
+                self._backup_succ.append(temp_succ)
             # end of mine
         else:       # mine: the first one in the ring
             logger.debug('({}) create a new ring'.format(self._id))
             self._predecessor = None        # be consistent
             for i in range(1, ct.RING_SIZE_BIT+1):
                 self._table.set_node(i, self._id)
+            # init backup successors to itself
+            for i in range(0, ct.BACKUP_SUCC_NUM):
+                self._backup_succ.append(self._id)
             # end of mine
-        # mine: init backup successors
-        temp_succ = succ
-        for i in range(0, ct.BACKUP_SUCC_NUM):
-            temp_succ = self.find_successor(helper._add(temp_succ, 1))
-            self._backup_succ.append(temp_succ)
-        # end of mine
 
     def stabilize(self):
         '''
@@ -172,17 +174,55 @@ class Node(object):
         Raises:
             N/A
         '''
-        logger.debug('({}) stablizing'.format(self._id))
+        logger.debug('({}) stabilizing'.format(self._id))
+        # # mine: check predecessor liveness
+        if self._predecessor:
+            try:
+                logger.debug('({}) checking predecessor livenetss'.format(self._id))
+                self.remote_get_successor(self._predecessor)
+                logger.debug('({}) checking predecessor livenetss -> alive'\
+                        .format(self._id))
+            except requests.ConnectionError:
+                logger.debug('({}) checking predecessor livenetss -> dead'\
+                        .format(self._id))
+                backup = self._get_alive_backup_succ()
+                self._predecessor = backup
+                logger.debug('({}) checking predecessor livenetss -> '\
+                        'set predecessor as backup {}'\
+                        .format(self._id, backup))
+        # end of mine
+        flag = False
+        while not flag:     # mine: try all backup successors
+            succ = self.get_successor()     # original
+            try:
+                x = self.remote_get_predecessor(succ)   # original
+                flag = True
+            except requests.ConnectionError:    # mine: add fault recovery
+                self._remove_dead(succ)
+                logger.debug('({}) successor {} is dead,'\
+                        'use backup {} instead'.format(
+                            self._id, succ, self.get_successor()))
+        # mine: check successor's predecessor's liveness
+        try:
+            # for the init node, the predecessor is None
+            if x:
+                # original
+                self.remote_get_successor(x)
+                if self._in_range_ee(x, self._id, self.get_successor()):
+                    self.set_successor(x)
+                # end of original
+        except requests.ConnectionError:    # the predecessor is dead
+            pass        # no need for updating
+        # end of mine
         succ = self.get_successor()
-        x = self.remote_get_predecessor(succ)
-        if self._in_range_ee(x, self._id, self.get_successor()):
-            self.set_successor(x)
-        succ = self.get_successor()
-        self.remote_notify(succ, self._id)
+        try:
+            self.remote_notify(succ, self._id)
+        except requests.ConnectionError:
+            pass        # no need to do anything for a dead node
         # mine: update the backup successors
         self._update_backup_succ()
         # end of mine
-        logger.debug('({}) stablizing -> Done'.format(self._id))
+        logger.debug('({}) stabilizing -> Done'.format(self._id))
 
     def notify(self, remote_node):
         '''
@@ -220,6 +260,7 @@ class Node(object):
         '''
         Periodically refresh finger table entries.
         This function only changes the finger table.
+        Replace the entry with backup if connection error.
 
         Args:
             loop:   A boolean flag. If True, then loop.
@@ -234,16 +275,34 @@ class Node(object):
         logger.debug('({}) fixing finger table'.format(self._id))
         if loop:
             for i in range(1, ct.RING_SIZE_BIT+1):
+                try:
+                    succ = self.find_successor(self._table.get_start(i))
+                    self.remote_get_successor(succ)     # check liveness
+                    self._table.set_node(i, succ)
+                    logger.debug('({}) set finger index {} with node {}'
+                            .format(self._id, i, succ))
+                except requests.ConnectionError:
+                    # mine: replace with backup
+                    backup = self._get_alive_backup_succ()
+                    self._table.set_node(i, backup)
+                    logger.debug('({}) set finger index {} \
+                            -> connection error, use backup {}'
+                            .format(self._id, i, succ, backup))
+        else:
+            i = random.randint(1, ct.RING_SIZE_BIT)
+            try:
                 succ = self.find_successor(self._table.get_start(i))
+                self.remote_get_successor(succ)     # check liveness
                 self._table.set_node(i, succ)
                 logger.debug('({}) set finger index {} with node {}'
                         .format(self._id, i, succ))
-        else:
-            i = random.randint(1, ct.RING_SIZE_BIT)
-            succ = self.find_successor(self._table.get_start(i))
-            self._table.set_node(i, succ)
-            logger.debug('({}) set finger index {} with node {}'
-                    .format(self._id, i, succ))
+            except requests.ConnectionError:
+                # mine: replace with backup
+                backup = self._get_alive_backup_succ()
+                self._table.set_node(i, backup)
+                logger.debug('({}) set finger index {} \
+                        -> connection error, use backup {}'
+                        .format(self._id, i, succ, backup))
         logger.debug('({}) fixing finger table -> Done'.format(self._id))
 
     def get_predecessor(self):
@@ -829,8 +888,34 @@ class Node(object):
         '''
         temp_succ = self.get_successor()
         for i in range(0, ct.BACKUP_SUCC_NUM):
-            temp_succ = self.find_successor(helper._add(temp_succ, 1))
-            self._backup_succ[i] = temp_succ
+            try:
+                temp_succ = self.find_successor(helper._add(temp_succ, 1))
+                self.remote_get_successor(temp_succ)    # check aliveness
+                self._backup_succ[i] = temp_succ
+            except requests.ConnectionError:    # mine
+                pass        # try to wait the ring stable
+
+    def _get_alive_backup_succ(self):
+        '''
+        Return an alive backup successor.
+
+        Args:
+            N/A
+
+        Returns:
+            The identity of the alive backup successor.
+        
+        Raises:
+            Exception
+        '''
+        for i in range(0, ct.BACKUP_SUCC_NUM):
+            node = self._backup_succ[i]
+            try:
+                self.remote_get_successor(node)
+                return node
+            except requests.ConnectionError:
+                pass
+        raise Exception('No backup successors alive!')
 
     def _remove_dead(self, dead_node):
         '''
@@ -845,10 +930,8 @@ class Node(object):
             N/A
         '''
         # update finger table (including successor) with backup
-        backup = self._backup_succ[0]
-        for i in range(0, ct.RING_SIZE_BIT + 1):
+        backup = self._get_alive_backup_succ()
+        for i in range(1, ct.RING_SIZE_BIT + 1):
             if self._table.get_node(i) == dead_node:
                 self._table.set_node(i, backup)
-        # update backup successors
-        self._update_backup_succ()
     #-------------------------------------- end of internal part --------------------------------------
