@@ -6,6 +6,7 @@ import logging
 import requests
 import tabulate
 import myserver.mychord.helper as hp
+import myserver.mychord.constants as ct
 
 logger = logging.getLogger(__name__)
 
@@ -215,7 +216,8 @@ def display_data(node_id=None):
 
 def remote_put(node_id, key, value):
     '''
-    Store the key-value pair in to ring via node_id.
+    Store the key-value pair in to ring via node_id. It will 
+    put into multiple nodes for replication.
 
     Args:
         node_id:    The node id.
@@ -229,9 +231,22 @@ def remote_put(node_id, key, value):
         N/A
     '''
     cname = hp._gen_net_id(node_id)
-    cmd = 'docker exec {} pipenv run python helper.py --local_put {} {}'\
-            .format(cname, key, value)
-    sp.run(cmd, shell=True)
+    key_id = hp._hash(key)
+    logger.info('hash({}) -> {}'.format(key, key_id))
+    succ = key_id
+    for i in range(0, ct.BACKUP_SUCC_NUM + 1):  # put into successors and backups
+        # find successor
+        cmd = 'docker exec {} pipenv run python helper.py --local_find_successor {}'\
+                .format(cname, succ)
+        proc = sp.run(cmd, shell=True, stdout=sp.PIPE, check=True)
+        succ = proc.stdout.splitlines()[0]
+        logger.info('{}th successor is {}'.format(i, succ))
+        # put value
+        cmd = 'docker exec {} pipenv run python helper.py --local_put {} {}'\
+                .format(hp._gen_net_id(succ), key, value)
+        sp.run(cmd, shell=True, stdout=sp.PIPE, check=True)
+        # next succ
+        succ = hp._add(succ, 1)
 
 def local_put(key, value):
     '''
@@ -248,12 +263,12 @@ def local_put(key, value):
         N/A
     '''
     payload = { 'key': key, 'value': value }
-    r = _requests_post('http://localhost:8000/put', payload)
+    r = _requests_post('http://localhost:8000/local_put', payload)
     assert(r.status_code==200)
 
 def remote_get(node_id, key):
     '''
-    Get the value for the key.
+    Get the value for the key on node_id.
 
     Args:
         node_id:    The node id.
@@ -284,7 +299,7 @@ def local_get(key):
         N/A
     '''
     payload = { 'key': key }
-    r = _requests_post('http://localhost:8000/get', payload)
+    r = _requests_post('http://localhost:8000/local_get', payload)
     assert(r.status_code==200)
     value = r.json()['value']
     print(key, '->', value)
@@ -315,3 +330,22 @@ def _display_backup_succ():
     assert(r.status_code==200)
     data = r.json()['result']
     print('backup successors are', data)
+
+def local_find_successor(identity):
+    '''
+    Ask the local node to find the successor of input id.
+
+    Args:
+        identity:   The object's id.
+
+    Returns:
+        The id of the successor.
+
+    Raises:
+        N/A
+    '''
+    r = _requests_post(
+            'http://localhost:8000/find_successor',
+            { 'id' : identity })
+    assert(r.status_code == 200)
+    print(r.json()['id'])

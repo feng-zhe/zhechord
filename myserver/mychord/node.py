@@ -382,9 +382,11 @@ class Node(object):
             result.append(self._table.get_node(i))
         return result
 
-    def put(self, key, value):
+    def local_put(self, key, value):
         '''
         Put the key-value into the ring.
+        Only put the key-value on the local node.
+        It is the application layer to decide which node to put.
 
         Args:
             key:    The key of the key-value pair.
@@ -398,18 +400,15 @@ class Node(object):
         '''
         logger.debug('({}) put key {} value {}'\
                         .format(self._id, key, value))
-        key_id = helper._hash(key)
-        succ = self.find_successor(key_id)
-        if succ == self._id:
-            self._data[key] = value
-        else:
-            self.remote_put(succ, key, value)
+        self._data[key] = value
         logger.debug('({}) put key {} value {} -> Done'\
                         .format(self._id, key, value))
 
-    def get(self, key):
+    def local_get(self, key):
         '''
         Get the value for key from the ring.
+        It will only check the local node data. It is
+        the application layer to decide which node to call get.
 
         Args:
             key:    The key of the key-value pair.
@@ -423,13 +422,7 @@ class Node(object):
         '''
         logger.debug('({}) get key {}'\
                         .format(self._id, key))
-        key_id = helper._hash(key)
-        succ = self.find_successor(key_id)
-        value = None
-        if succ == self._id:
-            value = self._data.get(key)
-        else:
-            value = self.remote_get(succ, key)
+        value = self._data.get(key, None)
         logger.debug('({}) get key {} -> {}'\
                         .format(self._id, key, value))
         return value

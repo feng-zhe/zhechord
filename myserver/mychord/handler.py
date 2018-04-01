@@ -37,11 +37,11 @@ class ChordServerHandler(BaseHTTPRequestHandler):
         elif path == '/display_finger_table':
             ft = sv.g_node.display_finger_table()
             self._response(200, { 'result': ft})
-        elif path == '/put':
-            sv.g_node.put(data['key'], data['value'])
+        elif path == '/local_put':
+            sv.g_node.local_put(data['key'], data['value'])
             self._response(200, {})
-        elif path == '/get':
-            value = sv.g_node.get(data['key'])
+        elif path == '/local_get':
+            value = sv.g_node.local_get(data['key'])
             self._response(200, {'value': value})
         elif path == '/display_data':
             kv = sv.g_node.display_data()

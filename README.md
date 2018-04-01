@@ -19,7 +19,7 @@ Prefix is normally used in requests. But internally, the id without prefix will 
 Identity is the position on the ring in hex. While the key is the 'key' in key-value pair.
 When putting the key and value, the key will first be hashed and get the identity for the key. And this identity will be used to locate the node which contains the key. So as getting.
 
-## Web API
+## Web API of node
 ### /find_predecessor
 #### POST
 input:  `{'id': xxxx}`
@@ -60,12 +60,12 @@ output: `{}`
 input:  `{}`
 output: `{'result':[xx,xx,xx]}`
 
-### /put
+### /local_put
 #### POST
 input:  `{'key': xxx, 'value':xxx}`
 output: `{}`
 
-### /get
+### /local_get
 #### POST
 input:  `{'key': xxx}`
 output: `{'value':xxx}`

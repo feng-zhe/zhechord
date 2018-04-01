@@ -14,10 +14,12 @@ def main():
     ex_group.add_argument('-n', '--create_network', action='store_true', help='create network')
     ex_group.add_argument('-f', '--display_finger_table', metavar='NODE_ID', nargs='?', type=str, const='-1', help='get finger table, if no NODE_ID, it returns the finger table of the local node.')
     ex_group.add_argument('-d', '--display_data', metavar='NODE_ID', nargs='?', type=str, const='-1', help='display the key value data, if no NODE_ID, it returns the finger table of the local node.')
-    ex_group.add_argument('-p', '--remote_put', metavar='NODE_ID KEY VALUE', nargs=3, type=str, help='store key-value pair into the ring via the NODE_ID')
-    ex_group.add_argument('-g', '--remote_get', metavar='NODE_ID KEY', nargs=2, type=str, help='get value for the key from the ring via the NODE_ID')
+    ex_group.add_argument('-p', '--remote_put', metavar='NODE_ID KEY VALUE', nargs=3, type=str, help='store key-value pair into the ring via the node. This is application layer put function, so it will put the data into multiple nodes for replication.')
+    ex_group.add_argument('-g', '--remote_get', metavar='NODE_ID KEY', nargs=2, type=str, help='get value for the key from the node')
+    # followings are used internally
     ex_group.add_argument('--local_put', metavar='KEY VALUE', nargs=2, help='store key-value pair into the ring via the local node')
     ex_group.add_argument('--local_get', metavar='KEY', nargs=1, type=str, help='get value for the key from the ring via the local node')
+    ex_group.add_argument('--local_find_successor', metavar='ID', nargs=1, type=str, help='find the successor of the identity')
     # behave according to the arguments
     args = parser.parse_args()
     if args.build_image:
@@ -54,6 +56,9 @@ def main():
     elif args.local_get:
         key = args.local_get[0]
         handlers.local_get(key)
+    elif args.local_find_successor:
+        identity = args.local_find_successor[0]
+        handlers.local_find_successor(identity)
     else:
         parser.print_help()
 

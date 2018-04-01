@@ -239,10 +239,10 @@ class TestNodeCore(unittest.TestCase):
             ms.period()
         logging.disable(logging.NOTSET)      # enable logging
         # put&get key-value
-        node_0.put('hello', 'world')
-        self.assertEqual(node_0.get('hello'), 'world')
-        self.assertEqual(node_3.get('hello'), 'world')
-        self.assertEqual(node_1.get('hello'), 'world')
+        node_0.local_put('hello', 'world')
+        self.assertEqual(node_0.local_get('hello'), 'world')
+        self.assertEqual(node_3.local_get('hello'), None)
+        self.assertEqual(node_1.local_get('hello'), None)
 
 if __name__ == '__main__':
     unittest.main()
