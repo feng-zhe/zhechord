@@ -108,11 +108,11 @@ def run_node(names):
     name0 = hp._format(int(names[0],16))
     cname = hp._gen_net_id(name0)
     if len(names) == 1:
-        cmd = 'docker run --name {} -d --network={} {} {}'\
+        cmd = 'docker run --name {} -dit --network={} {} {}'\
                 .format(cname, NET_NAME, IMAGE_NAME, name0)
     else:
         name1 = hp._format(int(names[1],16))
-        cmd = 'docker run --name {} -d --network={} {} {} {}'\
+        cmd = 'docker run --name {} -dit --network={} {} {} {}'\
                 .format(cname, NET_NAME, IMAGE_NAME, name0, name1)
     logger.info('Starting container with name {}'.format(cname))
     sp.run(cmd, shell=True, stdout=sp.PIPE, check=True)
