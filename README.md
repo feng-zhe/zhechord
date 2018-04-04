@@ -7,9 +7,10 @@ The branch basic is freezed and only for bug fix. Based on teacher's feedback, i
 The branch master is the active branch and contains advanced functions.
 
 ## TODO
-- duplication for fault tolerance.
+- unittest for 0 -> 1 -> 3 -> 11 -> 15 -> 1c
+- use 0 as the coordinator for handling data replication on node failure
 - refactor with docker-py
-- demo 0 -> 1 -> 3 -> 11 -> 15 -> 1c
+- use Paxo/Raft/Other to automatically select coordinator among nodes for handling data replication on node failure
 
 ## Container Prefix
 Because docker containers must have names starting with alphabets. So The prefix will be 'CR_' (chord ring).
