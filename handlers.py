@@ -349,3 +349,19 @@ def local_find_successor(identity):
             { 'id' : identity })
     assert(r.status_code == 200)
     print(r.json()['id'])
+
+def display_hash(key):
+    '''
+    Display the identity(hash) of the key.
+
+    Args:
+        key:    The key value.
+
+    Returns:
+        The id of the key on ring.
+
+    Raises:
+        N/A
+    '''
+    print(hp._hash(key))
+
