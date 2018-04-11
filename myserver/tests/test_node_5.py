@@ -1,5 +1,5 @@
 '''
-This file tests the core functionality of Node on small rings.
+This file tests the core functionality of Node on a ring of 2^3=8 nodes.
 '''
 import unittest
 import logging
