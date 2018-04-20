@@ -429,7 +429,7 @@ class Node(object):
 
     def display_data(self):
         '''
-        Return the finger table 
+        Return the key-value data.
 
         Args:
             N/A
