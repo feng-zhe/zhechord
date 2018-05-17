@@ -2,6 +2,9 @@
 The final report for ece 578 advance operating system.
 It is to implement the Chord Ring and test it with docker.
 
+## Usage
+Please read the [zhechord-paper](https://github.com/feng-zhe/zhechord-paper).
+
 ## NOTICE
 The branch basic is freezed and only for bug fix. Based on teacher's feedback, it seems the focus should be on fault tolerance.
 The branch master is the active branch and contains advanced functions.
